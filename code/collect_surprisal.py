@@ -29,7 +29,10 @@ def get_surprisal(input_str,model,tokenizer,ws_ind,char_repl):
     '''
 
     model.eval()
-    ctx_window = model.config.n_ctx # model-specific context window
+    if hasattr(model.config, "max_position_embeddings"): # attribute that contains context size is dependent on model-specific config
+        ctx_window = model.config.max_position_embeddings # Llama2 config
+    elif hasattr(model.config, "n_positions"):
+        ctx_window = model.config.n_positions # GPT config
 
     chunk_size = int(0.75*ctx_window) # chunk size based on LLM's context window size
 
