@@ -4,6 +4,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
+#######################
+#### Density plots ####
+#######################
+
 def add_vlines(df, col_name, surp_id, c_palette):
     
     col_vals = list(df[col_name].unique())
@@ -53,12 +57,11 @@ def kde_plot_conditions(df, study_id, model_id, make_title=True):
                        fill=True)
     
     plot.set(xlabel=x_lab_name)
-
-    plot.set(xlabel=None,ylabel=None)
     plot.set_xlim(0,df_new[surp_id].max())
 
     if make_title:
-        plot.set_title(title,fontsize=13,pad=5,x=0.12)
+        #plot.set_title(title,fontsize=13,pad=5,x=0.12)
+        plot.set_title(title)
 
     add_vlines(df, 'Condition', surp_id, c_palette)
 
@@ -66,12 +69,18 @@ def kde_plot_conditions(df, study_id, model_id, make_title=True):
     plt.savefig(f'../plots/{study_id}/{study_id}_{model_id}_conditions.pdf')
     plt.clf()
 
+###################################################################################
+###################################################################################
 
 
 if __name__ == '__main__':
+    
     adsbc21_df = pd.read_csv('../data/adsbc21/adsbc21.csv',sep=';')
     dbc19_df = pd.read_csv('../data/dbc19/dbc19.csv',sep=';')
     adbc23_df = pd.read_csv('../data/adbc23/adbc23.csv',sep=';')
 
-    
-    kde_plot_conditions(adsbc21_df,'adsbc21','leo13b')
+    model_ids = ['leo13b','secret-gpt-2']
+    for i in model_ids:
+        kde_plot_conditions(adsbc21_df,'adsbc21',i)
+        kde_plot_conditions(dbc19_df,'dbc19',i)
+        kde_plot_conditions(adbc23_df,'adbc23',i)

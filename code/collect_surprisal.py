@@ -15,6 +15,7 @@ def chunkstring(string, length):
 
     return (list(string[0+i:length+i] for i in range(0, len(string), length)))
 
+
 def get_surprisal(input_str,model,tokenizer,ws_ind,char_repl):
 
     '''
@@ -90,6 +91,18 @@ def get_surprisal(input_str,model,tokenizer,ws_ind,char_repl):
     return surprisals[-1]
 
 
+def bpe_split(word):
+
+    '''
+    Test if a given (target) word is split by the tokenizer into multiple subwords.
+    The tested tokenizers always prepend the BOS token, therefore length 2 indicates 
+    BOS + single token, while length > 2 indicates multiple subwords.
+    '''
+
+    encoded_w = tokenizer.encode(word)
+    return 1 if len(encoded_w)>2 else 0
+
+
 ##############
 #### data ####
 ##############
@@ -97,16 +110,19 @@ def get_surprisal(input_str,model,tokenizer,ws_ind,char_repl):
 def adsbc21_surprisal():
     df = pd.read_csv('../data/adsbc21/adsbc21.csv', sep = ';')
     df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model,tokenizer,ws_ind,char_repl))
+    df[bpe_id] = df['Target'].apply(bpe_split)
     df.to_csv('../data/adsbc21/adsbc21.csv', sep = ';', index = False)
 
 def dbc19_surprisal():
     df = pd.read_csv('../data/dbc19/dbc19.csv', sep = ';')
     df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model,tokenizer,ws_ind,char_repl))
+    df[bpe_id] = df['Target'].apply(bpe_split)
     df.to_csv('../data/dbc19/dbc19.csv', sep = ';', index = False)
 
 def adbc23_surprisal():
     df = pd.read_csv('../data/adbc23/adbc23.csv', sep = ';')
     df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model,tokenizer,ws_ind,char_repl))
+    df[bpe_id] = df['Target'].apply(bpe_split)
     df.to_csv('../data/adbc23/adbc23.csv', sep = ';', index = False)
 
 ###########################################################################################
@@ -122,12 +138,14 @@ if __name__ == '__main__':
     if args.model == 'leo13b':
         model_id = 'LeoLM/leo-hessianai-13b'
         surp_id = 'leo13b_surp'
+        bpe_id = 'leo13b_bpe_split'
         ws_ind = "▁" # Unicode code point is U+2581, not U+005F
         char_repl = False
         
     elif args.model == 'secret-gpt-2':
         model_id = 'stefan-it/secret-gpt2'
         surp_id = 'secretgpt2_surp'
+        bpe_id = 'secretgpt2_bpe_split'
         ws_ind = 'Ġ'
         char_repl = True
 
