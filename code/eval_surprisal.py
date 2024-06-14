@@ -2,13 +2,18 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import itertools
+import os
 
 #######################
 #### Density plots ####
 #######################
 
 def add_vlines(df, col_name, surp_id, c_palette):
+
+    '''
+    Adding vertical mean lines to density plots. 
+    '''
     
     col_vals = list(df[col_name].unique())
     for val in col_vals:
@@ -21,6 +26,14 @@ def add_vlines(df, col_name, surp_id, c_palette):
 
 
 def kde_plot_conditions(df, model_id, make_title=True):
+
+    '''
+    Generating density plots (kernel density estimation) per study,llm and condition.
+
+    df (DataFrame) : study-specific dataframe containing surprisal values
+    model_id (str) : specifies which model's surprisal values will be plotted
+    make_title (bool) : whether plot should include study as title
+    '''
 
     study_id = str(df.study_id.unique()[0])
 
@@ -68,36 +81,75 @@ def kde_plot_conditions(df, model_id, make_title=True):
     add_vlines(df, 'Condition', surp_id, c_palette)
 
     plt.tight_layout()
-    plt.savefig(f'../plots/{study_id}/{study_id}_{model_id}_conditions.pdf')
+    plt.savefig(f'../results/{study_id}/plots/{study_id}_{model_id}_conditions.pdf')
     plt.clf()
+
 
 #########################
 #### BPE split check ####
 #########################
 
-def check_bpe_splits(df,model_id):
+def check_bpe_splits(df,model_id,bpe_dict):
     
+    '''
+    '''
+
+    if bpe_dict:
+        key = max(bpe_dict.keys())+1
+    else:
+        key = 0
+
     study_id = str(df.study_id.unique()[0])
-    bpe_series = df[f'{model_id}_bpe_split'].value_counts() / len(df)
-    bpe_df = pd.DataFrame(bpe_series)
-    bpe_df = bpe_df.reset_index()
-    print(bpe_df)
+    val_counts = df[f'{model_id}_bpe_split'].value_counts()
+    bpe_prop = round(val_counts[1]/val_counts.sum(),3)
+    bpe_dict[key] = [study_id, model_id, bpe_prop]
+    return bpe_dict
 
+######################
+#### Correlations ####
+######################
 
+def correlations(df, model_ids):
+
+    method = 'kendall'
+    study_id = str(df.study_id.unique()[0])
+    surp_ids = [i+'_surp' for i in model_ids]
+
+    if study_id == 'dbc19':
+        df_sub = df[['Cloze', 'Association', 'Plausibility',*surp_ids]]
+    
+    if study_id == 'adsbc21':
+        df_sub = df[['Cloze', 'Association_Noun',*surp_ids]]
+
+    if study_id == 'adbc23':
+        df_sub = df[['Cloze', 'Plausibility',*surp_ids]]
+
+    df_sub.corr(method = method).to_csv(f'../results/{study_id}/{study_id}_corr.csv', sep = ';')
 
 ###################################################################################
 ###################################################################################
 
 
 if __name__ == '__main__':
-    
+
     adsbc21_df = pd.read_csv('../data/adsbc21/adsbc21.csv',sep=';')
     dbc19_df = pd.read_csv('../data/dbc19/dbc19.csv',sep=';')
     adbc23_df = pd.read_csv('../data/adbc23/adbc23.csv',sep=';')
 
     study_dfs = [adsbc21_df, dbc19_df, adbc23_df]
+    study_ids = ['adsbc21', 'dbc19', 'adbc23']
+    [os.makedirs(f'../results/{study}/plots/', exist_ok = True) for study in study_ids]
     model_ids = ['leo13b', 'secretgpt2']
-    for m in model_ids:
-        for s in study_dfs:
-            kde_plot_conditions(s, m)
-            check_bpe_splits(s, m)
+    make_title = True
+    bpe_dict = dict()
+
+    for args in itertools.product(study_dfs,model_ids):
+        kde_plot_conditions(*args,make_title)
+        check_bpe_splits(*args,bpe_dict)
+
+    bpe_df = pd.DataFrame.from_dict(bpe_dict,
+                                    orient='index',
+                                    columns= ['study_id','model_id','bpe_prop'])
+    bpe_df.to_csv('../results/bpe_splits.csv', sep = ';', index = False)
+
+    [correlations(d, model_ids) for d in study_dfs]

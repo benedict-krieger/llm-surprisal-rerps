@@ -164,4 +164,4 @@ cython_debug/
 
 # Custom
 .DS_Store
-plots/*
+results
