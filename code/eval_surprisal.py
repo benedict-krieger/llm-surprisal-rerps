@@ -20,8 +20,10 @@ def add_vlines(df, col_name, surp_id, c_palette):
         plt.axvline(mean, c=color, linestyle='--')
 
 
-def kde_plot_conditions(df, study_id, model_id, make_title=True):
-    
+def kde_plot_conditions(df, model_id, make_title=True):
+
+    study_id = str(df.study_id.unique()[0])
+
     if study_id == 'dbc19':
         r_dict= { 'a':'A: Baseline','b':'B: Event-related violation','c':'C: Event-unrelated violation'}
         df_new = df.replace({"Condition":r_dict})
@@ -44,7 +46,7 @@ def kde_plot_conditions(df, study_id, model_id, make_title=True):
         surp_id = 'leo13b_surp'
         x_lab_name = 'Leo-13b surprisal'
     
-    if model_id == 'secret-gpt-2':
+    if model_id == 'secretgpt2':
         surp_id = 'secretgpt2_surp'
         x_lab_name = 'GPT-2 surprisal'
 
@@ -69,6 +71,20 @@ def kde_plot_conditions(df, study_id, model_id, make_title=True):
     plt.savefig(f'../plots/{study_id}/{study_id}_{model_id}_conditions.pdf')
     plt.clf()
 
+#########################
+#### BPE split check ####
+#########################
+
+def check_bpe_splits(df,model_id):
+    
+    study_id = str(df.study_id.unique()[0])
+    bpe_series = df[f'{model_id}_bpe_split'].value_counts() / len(df)
+    bpe_df = pd.DataFrame(bpe_series)
+    bpe_df = bpe_df.reset_index()
+    print(bpe_df)
+
+
+
 ###################################################################################
 ###################################################################################
 
@@ -79,8 +95,9 @@ if __name__ == '__main__':
     dbc19_df = pd.read_csv('../data/dbc19/dbc19.csv',sep=';')
     adbc23_df = pd.read_csv('../data/adbc23/adbc23.csv',sep=';')
 
-    model_ids = ['leo13b','secret-gpt-2']
-    for i in model_ids:
-        kde_plot_conditions(adsbc21_df,'adsbc21',i)
-        kde_plot_conditions(dbc19_df,'dbc19',i)
-        kde_plot_conditions(adbc23_df,'adbc23',i)
+    study_dfs = [adsbc21_df, dbc19_df, adbc23_df]
+    model_ids = ['leo13b', 'secretgpt2']
+    for m in model_ids:
+        for s in study_dfs:
+            kde_plot_conditions(s, m)
+            check_bpe_splits(s, m)
