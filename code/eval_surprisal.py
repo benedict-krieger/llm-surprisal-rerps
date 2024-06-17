@@ -126,6 +126,32 @@ def correlations(df, model_ids):
 
     df_sub.corr(method = method).to_csv(f'../results/{study_id}/{study_id}_corr.csv', sep = ';')
 
+###########################
+#### Prepare rERP data ####
+###########################
+
+def prep_rERP_data(df, model_ids):
+
+    study_id = str(df.study_id.unique()[0])
+    print(study_id)
+    surp_ids = [i+'_surp' for i in model_ids]
+
+    erp_df = pd.read_csv(f'../data/{study_id}/{study_id}_erp.csv') # load ERP data
+    if 'ItemNum' in erp_df.columns:
+        erp_df = erp_df.rename(columns={'ItemNum':'Item'})
+    print(f'ERP data shape {erp_df.shape}')
+    erp_df.set_index(['Item','Condition'],inplace = True) # remove Item & Condition as columns, use as join index
+    
+    surp_df = df[['Item','Condition',*surp_ids]]
+    surp_df.set_index(['Item','Condition'], inplace=True) # remove Item & Condition as columns, use as join index
+    print(f'Surp data shape {surp_df.shape}')
+    
+    merged_df = erp_df.join(surp_df, how='left')
+    merged_df.reset_index(inplace=True) # get back Item & Condition as columns
+    print(f'Merged data shape after reset {merged_df.shape}')
+    merged_df.to_csv(f'../data/{study_id}/{study_id}_erp.csv') # overwrite original erp data with new df containing additional surprisal columns 
+
+
 ###################################################################################
 ###################################################################################
 
@@ -143,6 +169,7 @@ if __name__ == '__main__':
     make_title = True
     bpe_dict = dict()
 
+    print("Density plots...")
     for args in itertools.product(study_dfs,model_ids):
         kde_plot_conditions(*args,make_title)
         check_bpe_splits(*args,bpe_dict)
@@ -152,4 +179,7 @@ if __name__ == '__main__':
                                     columns= ['study_id','model_id','bpe_prop'])
     bpe_df.to_csv('../results/bpe_splits.csv', sep = ';', index = False)
 
+    print("Correlations")
     [correlations(d, model_ids) for d in study_dfs]
+    print("Preparing rERPs")
+    [prep_rERP_data(d, model_ids) for d in study_dfs]
