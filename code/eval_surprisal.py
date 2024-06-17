@@ -149,7 +149,7 @@ def prep_rERP_data(df, model_ids):
     merged_df = erp_df.join(surp_df, how='left')
     merged_df.reset_index(inplace=True) # get back Item & Condition as columns
     print(f'Merged data shape after reset {merged_df.shape}')
-    merged_df.to_csv(f'../data/{study_id}/{study_id}_erp.csv') # overwrite original erp data with new df containing additional surprisal columns 
+    merged_df.to_csv(f'../data/{study_id}/{study_id}_surp_erp.csv', index = False) # overwrite original erp data with new df containing additional surprisal columns 
 
 
 ###################################################################################
@@ -179,7 +179,7 @@ if __name__ == '__main__':
                                     columns= ['study_id','model_id','bpe_prop'])
     bpe_df.to_csv('../results/bpe_splits.csv', sep = ';', index = False)
 
-    print("Correlations")
+    print("Correlations...")
     [correlations(d, model_ids) for d in study_dfs]
-    print("Preparing rERPs")
+    print("Preparing rERPs...")
     [prep_rERP_data(d, model_ids) for d in study_dfs]

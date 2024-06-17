@@ -166,3 +166,4 @@ cython_debug/
 .DS_Store
 results
 data/*/*_erp.csv
+data/*/*_rERP*.csv
