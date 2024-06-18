@@ -142,14 +142,17 @@ def prep_rERP_data(df, model_ids):
     print(f'ERP data shape {erp_df.shape}')
     erp_df.set_index(['Item','Condition'],inplace = True) # remove Item & Condition as columns, use as join index
     
-    surp_df = df[['Item','Condition',*surp_ids]]
+    if study_id == 'dbc19':
+        surp_df = df[['Item', 'Condition', 'Cloze', *surp_ids]] # the dbc19 erp data is missing Cloze
+    else:
+        surp_df = df[['Item','Condition',*surp_ids]]
     surp_df.set_index(['Item','Condition'], inplace=True) # remove Item & Condition as columns, use as join index
     print(f'Surp data shape {surp_df.shape}')
     
     merged_df = erp_df.join(surp_df, how='left')
     merged_df.reset_index(inplace=True) # get back Item & Condition as columns
     print(f'Merged data shape after reset {merged_df.shape}')
-    merged_df.to_csv(f'../data/{study_id}/{study_id}_surp_erp.csv', index = False) # overwrite original erp data with new df containing additional surprisal columns 
+    merged_df.to_csv(f'../data/{study_id}/{study_id}_surp_erp.csv', index = False) # new df containing additional surprisal columns 
 
 
 ###################################################################################
