@@ -19,7 +19,6 @@ function run_analysis(study_id, surp_id)
         # - Electrodes: Electrodes on which to fit separate models.
         # - Predictors: Predictors to use in the model.
         models = make_models([:Subject, :Timestamp], [:Item, :Condition], elec, [:Intercept, Symbol(surp_id)]);
-        println(models)
 
         # Pre-process the data, using the following arguments:
         # - infile: Path to input file. Necessary.
@@ -51,10 +50,12 @@ function run_analysis(study_id, surp_id)
         @time fit_models(dt, models, "../data/$study_id/$(study_id)_$(surp_id)_across_subj_rERP");
 end
 
+#############################################################################################################################################
+#############################################################################################################################################
+
 study_ids = ["adsbc21","dbc19","adbc23"]
 surprisal_ids = ["leo13b_surp", "secretgpt2_surp"]
 
-#for (study_id, surprisal_id) in Iterators.product(study_ids, surprisal_ids)
-#        run_analysis(study_id, surprisal_id)
-#end
-run_analysis("dbc19", "leo13b_surp")
+for (study_id, surprisal_id) in Iterators.product(study_ids, surprisal_ids)
+        run_analysis(study_id, surprisal_id)
+end

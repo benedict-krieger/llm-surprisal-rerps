@@ -8,6 +8,7 @@ library(data.table)
 library(ggplot2)
 library(grid)
 library(gridExtra)
+library(stringr) # Added for string wrap in legends
 
 # compute standard error
 se <- function(
@@ -152,7 +153,11 @@ plot_single_elec <- function(
     leg_labs,
     leg_vals,
     omit_legend = FALSE,
-    save_legend = FALSE
+    save_legend = FALSE,
+    omit_x = FALSE,
+    omit_y = FALSE,
+    annotate = FALSE,
+    text = ""
 ) { 
     if (modus %in% c("Quantile", "Condition")) {
         cols <- c("Spec", "Timestamp", modus)
@@ -195,7 +200,7 @@ plot_single_elec <- function(
                 ylims = ylims,
                 modus = modus,
                 ci = ci,
-                leg_labs = leg_labs,
+                leg_labs = str_wrap(leg_labs,20),
                 leg_vals = leg_vals)
     }
 
@@ -204,9 +209,29 @@ plot_single_elec <- function(
         gg <- gg + theme(legend.key.size = unit(0.5, 'cm'), # lgnd key size
             legend.key.height = unit(0.5, 'cm'),            # lgnd key height
             legend.key.width = unit(0.5, 'cm'),             # lgnd key width
-            legend.title = element_text(size = 7),          # lgnd ttl font size
-            legend.text = element_text(size = 6))           # lgnd el font size
-        gg <- gg + theme(plot.title = element_text(size = 7.5))
+            legend.title = element_text(size = 11),          # lgnd ttl font size; original: 7
+            legend.text = element_text(size = 11))           # lgnd el font size; original: 6
+        gg <- gg + theme(plot.title = element_text(size = 11.5)) # original: 7.5
+        gg <- gg + theme(axis.text.x = element_text(size= 14),
+                         axis.text.y = element_text(size = 14))
+
+        if (omit_x != FALSE) {
+            gg <- gg + theme(axis.title.x = element_blank(),
+                             axis.text.x = element_blank(),
+                             axis.ticks.x = element_blank() )
+        }
+
+        if (omit_y != FALSE) {
+            gg <- gg + theme(axis.title.y = element_blank(),
+                             axis.text.y = element_blank(),
+                             axis.ticks.y = element_blank() )
+        }
+
+        if (annotate != FALSE) {
+            text_label = grobTree(textGrob(text,x=0.01, y=0.95, hjust = 0, gp=gpar(fontsize=20, fontface="bold")))
+            gg <- gg + annotation_custom(text_label) 
+        }
+
 
         # Save legend to file
         if (save_legend) {
@@ -214,7 +239,7 @@ plot_single_elec <- function(
             file_trimmed <- strtrim(file, nchar(file) - 4)
             ggsave(paste0(file_trimmed, "_wavelegend.pdf"),
                     lgnd, device = cairo_pdf,
-                    width = 4.5, height = 0.5)
+                    width = 5, height = 0.5) # original width=4.5, height=0.5
         }
 
         # Add legend or not
