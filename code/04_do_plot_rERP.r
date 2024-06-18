@@ -1,6 +1,7 @@
-setwd('/Users/benedictschneider/GitProjects/MasterThesis/code/rERP_benedict/code')
-#source("../code/plot_rERP.r")
-source("../code/plot_rERP_blank_axis.r")
+# This file originates from adbc23
+library(here)
+library(glue)
+source("../code/plot_rERP_v2.r")
 source("../code/benjamini-hochberg.r")
 
 make_plots <- function(
@@ -8,13 +9,40 @@ make_plots <- function(
     elec = c("F3", "Fz", "F4", "C3", "Cz", "C4", "P3", "Pz", "P4"),
     predictor = "Intercept",
     inferential = FALSE,
-    model_labs
+    model_labs,
+    study_id
 ) {
     # make dirs
-    system(paste0("mkdir -p ../plots/", file))
-    system(paste0("mkdir -p ../plots/", file, "/Waveforms"))
-    system(paste0("mkdir -p ../plots/", file, "/Topos"))
+    plots_dir = glue("../results/{study_id}/plots/{file}/")
+    system(paste0("mkdir -p ", plots_dir))
+    system(paste0("mkdir -p ", plots_dir, "/Waveforms"))
+    system(paste0("mkdir -p ", plots_dir, "/Topos"))
 
+    ##################
+    # Study-specific #
+    ##################
+
+    if (study_id == 'adsbc21') {
+        time_windows <- list(c(350, 450), c(600, 800))
+        data_labs <- c("A: A+E+", "B: A-E+", "C: A+E-", "D: A-E-")
+        data_vals <- c("#000000", "#BB5566", "#004488", "#DDAA33")
+        }
+    else if (study_id == 'dbc19') {
+        time_windows <- list(c(300, 500), c(800, 1000))
+        data_labs <- c("A: Baseline",
+                    "B: Event related violation",
+                    "C: Event unrelated violation")
+        data_vals <- c("#000000", "red", "blue")
+        }
+    else if (study_id == 'adbc23') {
+            time_windows <- list(c(300, 500), c(600, 1000))
+            data_labs <- c("A: Plausible",
+                    "B: Less plausible, attraction",
+                    "C: Implausible, no attraction")
+            data_vals <- c("#000000", "red", "blue") 
+        }
+    
+    
     if (grepl("across", file)) {
         ci = FALSE
     } else {
@@ -24,7 +52,7 @@ make_plots <- function(
     ##########
     # MODELS #
     ##########
-    mod <- fread(paste0("../data/", file, "_models.csv"))
+    mod <- fread(paste0("../data/",study_id, "/" , file, "_models.csv"))
     mod$Spec <- factor(mod$Spec, levels = predictor)
 
     # Models: coefficent
@@ -58,7 +86,7 @@ make_plots <- function(
     if (inferential == TRUE) {
         # Specify subsets of time-windows and 
         # electrodes within which to correct
-        time_windows <- list(c(300, 500), c(600, 1000))
+        time_windows <- time_windows
         elec_corr <- c("F3", "Fz", "F4", "C3", "Cz", "C4", "P3", "Pz", "P4")
         cols <- c("Timestamp", "Type", "Spec",
                 elec_corr, paste0(elec_corr, "_CI"))
@@ -91,13 +119,11 @@ make_plots <- function(
     ########
     # DATA #
     ########
-    eeg <- fread(paste0("../data/", file, "_data.csv"))
+    eeg <- fread(paste0("../data/", study_id, file, "_data.csv"))
     eeg$Condition <- factor(plyr::mapvalues(eeg$Condition, c(2, 1, 3),
                         c("B", "A", "C")), levels = c("A", "B", "C"))
-    data_labs <- c("A: Plausible",
-                    "B: Less plausible, attraction",
-                    "C: Implausible, no attraction")
-    data_vals <- c("#000000", "red", "blue")
+    data_labs <- data_labs
+    data_vals <- data_vals
 
     # Data: Observed
     obs <- eeg[Type == "EEG", ]
@@ -238,8 +264,26 @@ elec_all <- c("Fp1", "Fp2", "F7", "F3", "Fz", "F4", "F8", "FC5",
                 "FC1", "FC2", "FC6", "C3", "Cz", "C4", "CP5", "CP1",
                 "CP2", "CP6", "P7", "P3", "Pz", "P4", "P8", "O1", "Oz", "O2")
 
-make_plots("adbc23_rERP_leo13b", elec_all,
-    predictor = c("Intercept", "leo13b_s"), model_labs = c("Intercept", "Leo-13b surprisal"))
+#make_plots("adbc23_rERP_leo13b", elec_all,
+#    predictor = c("Intercept", "leo13b_s"), model_labs = c("Intercept", "Leo-13b surprisal"))
 
-make_plots("adbc23_rERP_leo13b_across_s", elec_all,
-    predictor = c("Intercept", "leo13b_s"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = TRUE)
+#make_plots("adbc23_rERP_leo13b_across_s", elec_all,
+#    predictor = c("Intercept", "leo13b_s"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = TRUE)
+
+study_ids = list("adsbc21", "dbc19", "adbc23")
+surp_ids = list("leo13b_surp", "secretgpt2_surp")
+infer_options = list(TRUE, FALSE)
+surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "GPT-2 surprisal")
+
+
+for (o in infer_options) {
+    for (st in study_ids) {
+        for (su in surp_ids) {
+            file = if (o) paste(st, su, "across_subj", "rERP", sep='_') else paste(st, su, "rERP", sep='_')
+            print(file)
+            s_lab = surp_labs[su]
+            print(s_lab)
+            make_plots(file, elec_all, predictor = c("Intercept", su), model_labs c("Intercept", s_lab), inferential = o, study_id = st)
+        }
+    }
+}
