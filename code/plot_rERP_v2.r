@@ -1,7 +1,10 @@
-##
+## Original code:
 # Christoph Aurnhammer <aurnhammer@coli.uni-saarland.de>
 # EEG plotting options for (lme)rERPs
 # Including my adaption of topography plotting from craddm
+#
+## Modified by:
+# Benedict Krieger <bkrieger@lst.uni-saarland.de>
 ##
 
 library(data.table)
@@ -209,11 +212,11 @@ plot_single_elec <- function(
         gg <- gg + theme(legend.key.size = unit(0.5, 'cm'), # lgnd key size
             legend.key.height = unit(0.5, 'cm'),            # lgnd key height
             legend.key.width = unit(0.5, 'cm'),             # lgnd key width
-            legend.title = element_text(size = 11),          # lgnd ttl font size; original: 7
-            legend.text = element_text(size = 11))           # lgnd el font size; original: 6
-        gg <- gg + theme(plot.title = element_text(size = 11.5)) # original: 7.5
-        gg <- gg + theme(axis.text.x = element_text(size= 14),
-                         axis.text.y = element_text(size = 14))
+            legend.title = element_text(size = 7),          # lgnd ttl font size; original: 7, prev: 11
+            legend.text = element_text(size = 6))           # lgnd el font size; original: 6, prev: 11
+        gg <- gg + theme(plot.title = element_text(size = 7.5)) # original: 7.5, prev: 11.5
+        gg <- gg + theme(axis.text.x = element_text(size= 11), # prev: 14
+                         axis.text.y = element_text(size = 11)) # prev 14
 
         if (omit_x != FALSE) {
             gg <- gg + theme(axis.title.x = element_blank(),
