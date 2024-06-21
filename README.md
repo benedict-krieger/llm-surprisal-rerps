@@ -66,6 +66,7 @@ make analysis
 This may take some time to run. Collection of surprisal values is excluded, since specifically the Llama-2 LLM (Leo13b) requires a lot of computational resources. Surprisal values are included in the stimulus data files (e.g. `adbc23.csv`), and can be reproduced by running `make collect_secretgpt2_surp` and `make collect_leo13b_surp` (the latter is not recommended to be run locally).
 
 The individual parts of the analysis can also be run separately:
+
     - `make paths` create required directory structure for results
     - `make eval_surp` merge surprisal and original ERP data, create density plots and check BPE splits
     - `make rERP` run rERP analysis (Julia)
