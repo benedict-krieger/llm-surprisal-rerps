@@ -67,11 +67,14 @@ This may take some time to run. Collection of surprisal values is excluded, sinc
 
 The individual parts of the analysis can also be run separately:
 
-    - `make paths` create required directory structure for results
-    - `make eval_surp` merge surprisal and original ERP data, create density plots and check BPE splits
-    - `make rERP` run rERP analysis (Julia)
-    - `make plot_rERP` create plots of rERP results (R)
-    - `make clean` remove all results and rERP data files
+```
+    make paths # create required directory structure for results
+    make eval_surp # merge surprisal and original ERP data, create density plots and check BPE splits
+    make rERP # run rERP analysis (Julia)
+    make plot_rERP # create plots of rERP results (R)
+    make clean # remove all results and rERP data files
+```
+
 
 If not using GNU Make, the code can also be run directly in the order indicated by the naming scheme, with `01_collect_surprisal.py` being optional.
 
