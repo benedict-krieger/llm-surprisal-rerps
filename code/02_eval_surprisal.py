@@ -61,7 +61,15 @@ def kde_plot_conditions(df, model_id, make_title=True):
     
     if model_id == 'secretgpt2':
         surp_id = 'secretgpt2_surp'
-        x_lab_name = 'GPT-2 surprisal'
+        x_lab_name = 'secret GPT-2 surprisal'
+
+    if model_id == 'gerpt2':
+        surp_id = 'gerpt2_surp'
+        x_lab_name = 'GerPT-2 surprisal'
+
+    if model_id == 'gerpt2large':
+        surp_id = 'gerpt2large_surp'
+        x_lab_name = 'GerPT-2 large surprisal'
 
     sns.set(style='darkgrid')
     plot = sns.kdeplot(data=df_new,
@@ -168,7 +176,7 @@ if __name__ == '__main__':
     study_dfs = [adsbc21_df, dbc19_df, adbc23_df]
     study_ids = ['adsbc21', 'dbc19', 'adbc23']
     [os.makedirs(f'../results/{study}/plots/', exist_ok = True) for study in study_ids]
-    model_ids = ['leo13b', 'secretgpt2']
+    model_ids = ['leo13b', 'secretgpt2','gerpt2', 'gerpt2large']
     make_title = True
     bpe_dict = dict()
 

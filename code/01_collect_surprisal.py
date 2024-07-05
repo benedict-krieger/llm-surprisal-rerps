@@ -16,7 +16,7 @@ def chunkstring(string, length):
     return (list(string[0+i:length+i] for i in range(0, len(string), length)))
 
 
-def get_surprisal(input_str,model,tokenizer,ws_ind,char_repl):
+def get_surprisal(input_str, model, tokenizer, ws_ind, char_repl, bos_pad):
 
     '''
     Returns surprisal for the last word of a string.
@@ -26,6 +26,7 @@ def get_surprisal(input_str,model,tokenizer,ws_ind,char_repl):
     tokenizer (object): pre-loaded tokenizer instance
     ws_ind (char): special character indicating initial whitespace when using convert_ids_to_tokens
     char_repl (bool) : whether character replacement is needed (unicode problems in some GPT-models)
+    bos_pad (bool) : whether input sequence needs to be padded with the bos token
 
     '''
 
@@ -47,8 +48,13 @@ def get_surprisal(input_str,model,tokenizer,ws_ind,char_repl):
         
         inputs = tokenizer(seq, is_split_into_words=True)
 
-        model_inputs = transformers.BatchEncoding({"input_ids":torch.tensor(inputs.input_ids).unsqueeze(0),
-            "attention_mask":torch.tensor(inputs.attention_mask).unsqueeze(0)})
+        if bos_pad:
+            bos_id = tokenizer.bos_token_id
+            model_inputs = transformers.BatchEncoding({"input_ids":torch.tensor([bos_id]+inputs.input_ids).unsqueeze(0),
+                "attention_mask":torch.tensor([1]+inputs.attention_mask).unsqueeze(0)})
+        else:
+            model_inputs = transformers.BatchEncoding({"input_ids":torch.tensor(inputs.input_ids).unsqueeze(0),
+                "attention_mask":torch.tensor(inputs.attention_mask).unsqueeze(0)})
 
         with torch.no_grad():
             outputs = model(**model_inputs)
@@ -91,16 +97,27 @@ def get_surprisal(input_str,model,tokenizer,ws_ind,char_repl):
     return surprisals[-1]
 
 
-def bpe_split(word):
+def bpe_split(word, bos_pad):
 
     '''
     Test if a given (target) word is split by the tokenizer into multiple subwords.
-    The tested tokenizers always prepend the BOS token, therefore length 2 indicates 
+    
+    If the tested tokenizer automatically prepends the BOS token (bos_pad=False), length 2 indicates 
     BOS + single token, while length > 2 indicates multiple subwords.
+    
+    If the tokenizer does not prepend the BOS token (bos_pad=True), length > 1 indicates multiple subwords.
     '''
 
     encoded_w = tokenizer.encode(word)
-    return 1 if len(encoded_w)>2 else 0
+
+    if len(encoded_w) > 2:
+        bpe_split = 1
+    elif bos_pad and (len(encoded_w) > 1):
+        bpe_split = 1
+    else:
+        bpe_split = 0
+
+    return bpe_split
 
 
 ##############
@@ -109,20 +126,20 @@ def bpe_split(word):
 
 def adsbc21_surprisal():
     df = pd.read_csv('../data/adsbc21/adsbc21.csv', sep = ';')
-    df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model,tokenizer,ws_ind,char_repl))
-    df[bpe_id] = df['Target'].apply(bpe_split)
+    df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model, tokenizer, ws_ind, char_repl, bos_pad))
+    df[bpe_id] = df['Target'].apply(bpe_split, args=(bos_pad,))
     df.to_csv('../data/adsbc21/adsbc21.csv', sep = ';', index = False)
 
 def dbc19_surprisal():
     df = pd.read_csv('../data/dbc19/dbc19.csv', sep = ';')
-    df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model,tokenizer,ws_ind,char_repl))
-    df[bpe_id] = df['Target'].apply(bpe_split)
+    df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model, tokenizer, ws_ind, char_repl, bos_pad))
+    df[bpe_id] = df['Target'].apply(bpe_split, args=(bos_pad,))
     df.to_csv('../data/dbc19/dbc19.csv', sep = ';', index = False)
 
 def adbc23_surprisal():
     df = pd.read_csv('../data/adbc23/adbc23.csv', sep = ';')
-    df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model,tokenizer,ws_ind,char_repl))
-    df[bpe_id] = df['Target'].apply(bpe_split)
+    df[surp_id] = df['Stimulus_tf'].apply(get_surprisal, args=(model,tokenizer,ws_ind,char_repl, bos_pad))
+    df[bpe_id] = df['Target'].apply(bpe_split, args=(bos_pad,))
     df.to_csv('../data/adbc23/adbc23.csv', sep = ';', index = False)
 
 ###########################################################################################
@@ -130,10 +147,10 @@ def adbc23_surprisal():
 
 if __name__ == '__main__':
 
-    all_model_ids = ['leo13b','secret-gpt-2']
+    all_models = ['leo13b','secret-gpt-2','gerpt2','gerpt2-large']
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m','--model',help = f'Models:{all_model_ids}')
+    parser.add_argument('-m','--model',help = f'Models:{all_models}')
     args = parser.parse_args()
     if args.model == 'leo13b':
         model_id = 'LeoLM/leo-hessianai-13b'
@@ -141,6 +158,7 @@ if __name__ == '__main__':
         bpe_id = 'leo13b_bpe_split'
         ws_ind = "▁" # Unicode code point is U+2581, not U+005F
         char_repl = False
+        bos_pad = False
         
     elif args.model == 'secret-gpt-2':
         model_id = 'stefan-it/secret-gpt2'
@@ -148,6 +166,23 @@ if __name__ == '__main__':
         bpe_id = 'secretgpt2_bpe_split'
         ws_ind = 'Ġ'
         char_repl = True
+        bos_pad = False
+
+    elif args.model == 'gerpt2':
+        model_id = 'benjamin/gerpt2'
+        surp_id = 'gerpt2_surp'
+        bpe_id = 'gerpt2_bpe_split'
+        ws_ind = 'Ġ'
+        char_repl = True
+        bos_pad = True
+
+    elif args.model == 'gerpt2-large':
+        model_id = 'benjamin/gerpt2-large'
+        surp_id = 'gerpt2large_surp'
+        bpe_id = 'gerpt2large_bpe_split'
+        ws_ind = 'Ġ'
+        char_repl = True
+        bos_pad = True
 
     print(f'Model id: {model_id}')
     tokenizer = AutoTokenizer.from_pretrained(model_id, add_prefix_space=True)

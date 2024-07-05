@@ -201,7 +201,7 @@ make_plots <- function(
     #             "Intercept + Noun Association",
     #             "Intercept + Cloze + Noun Association")
 
-    surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "GPT-2 surprisal")
+    surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "secret GPT-2 surprisal", "gerpt2_surp" = "GerPT-2 surprisal", "gerpt2large_surp" = "GerPT-2 large surprisal")
     s_lab = surp_labs[surp_id]
     combo <- c("Intercept", glue("Intercept + {s_lab}"))
 
@@ -288,9 +288,9 @@ elec_all <- c("Fp1", "Fp2", "F7", "F3", "Fz", "F4", "F8", "FC5",
                 "CP2", "CP6", "P7", "P3", "Pz", "P4", "P8", "O1", "Oz", "O2")
 
 study_ids = list("adsbc21", "dbc19", "adbc23")
-surp_ids = list("leo13b_surp", "secretgpt2_surp")
+surp_ids = list("leo13b_surp", "secretgpt2_surp", "gerpt2_surp", "gerpt2large_surp")
 infer_options = list(TRUE, FALSE)
-surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "GPT-2 surprisal")
+surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "secret GPT-2 surprisal", "gerpt2_surp" = "GerPT-2 surprisal", "gerpt2large_surp" = "GerPT-2 large surprisal")
 
 for (o in infer_options) {
     for (st in study_ids) {

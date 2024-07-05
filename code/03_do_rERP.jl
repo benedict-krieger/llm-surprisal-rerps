@@ -54,7 +54,7 @@ end
 #############################################################################################################################################
 
 study_ids = ["adsbc21","dbc19","adbc23"]
-surprisal_ids = ["leo13b_surp", "secretgpt2_surp"]
+surprisal_ids = ["leo13b_surp", "secretgpt2_surp", "gerpt2_surp", "gerpt2large_surp"]
 
 for (study_id, surprisal_id) in Iterators.product(study_ids, surprisal_ids)
         run_analysis(study_id, surprisal_id)
