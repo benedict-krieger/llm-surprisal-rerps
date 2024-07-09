@@ -298,6 +298,59 @@ function fit_models(data, models, file)
     [out_data, out_models]
 end
 
+# Same as fit_models but invoking write_data_wo_avg function
+function fit_models_wo_avg(data, models, file)
+    # Get subset indices
+    Index = get_index(data, models)
+    e_indices = findall(Index .!= 0);
+    s_indices = flatten_ar([1, e_indices[1:end-1].+1]);
+    m_indices = 1:length(e_indices);
+    ind = make_Ind(data, models, m_indices, 0, 0, 0);
+
+    # allocate output data frames
+    out_data = allocate_data(data, models);
+    out_models = allocate_models(data, models, ind);
+
+    # Get number of models, for showing off.
+    num = num_mod(data, models)
+    print("Fitting ", num, " models using ", Threads.nthreads(), " threads. \n")   
+    Threads.@threads for i in 1:length(s_indices)
+	    local ind = make_Ind(data, models, m_indices, s_indices[i], e_indices[i], m_indices[i]);
+        
+        # Take subset
+        df = @view data[ind.s:ind.e,:];
+
+        # Insert coefficients.
+        out_models = coef(out_models, df, models, ind);
+
+        # Insert estimates.
+        out_data = estimates(out_models, out_data, df, models, ind);
+        
+        # Insert residuals.
+        out_data = residual(out_data, models, ind);
+        
+        # Insert SE on coefficients.
+        out_models = standarderror(out_data, out_models, df, models, ind);
+    end
+    
+    # compute t-values.
+    out_models = tvalue(out_models, models, ind);
+
+    # compute p-values.
+    out_models = pvalue(out_models, models, ind);
+
+    # Addition of intercept to coefs
+    out_models = coef_addition(out_models, models, ind)
+
+    if typeof(file) == String
+        out_models = write_models(out_models, models, file)
+        out_data = write_data_wo_avg(out_data, models, file)
+    end
+
+    [out_data, out_models]
+end
+
+
 function fit_models_components(dt, models, file)
     out_data = []
     out_models = []
@@ -537,6 +590,25 @@ function write_data(out_data, models, file)
         # Mysteriously, the output df of the previous line is not always sorted the same way. Hence, sort.
         sort!(error_ribbons, [:Timestamp, :Type, :Spec, :Condition])
         out_data[!,Symbol(x, "_CI")] = error_ribbons[!,x]
+    end
+
+    dtype_dict = Dict(1 => "EEG", 2 => "est", 3 => "res");
+    dspec_dict = Dict([i => x for (i, x) in enumerate(models.Sets)]);
+    dspec_dict[42] = [:EEG];
+    out_data[!,:Type] = [dtype_dict[x] for x in out_data[:,:Type]];
+    out_data[!,:Spec] = [dspec_dict[x] for x in out_data[:,:Spec]];
+
+    if file != "none"
+        write(string("../data/", file, "_data.csv"), out_data)
+    end
+
+    out_data
+end
+
+# writing data without averaging
+function write_data_wo_avg(out_data, models, file)
+    if models.Quantiles
+        out_data = assign_estimate_quantiles(out_data, models)
     end
 
     dtype_dict = Dict(1 => "EEG", 2 => "est", 3 => "res");

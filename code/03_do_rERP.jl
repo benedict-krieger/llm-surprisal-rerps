@@ -51,11 +51,54 @@ function run_analysis(study_id, surp_id)
 end
 
 #############################################################################################################################################
+
+function dbc19_assocplaus()
+
+        # Define an array of electrodes on which to fit the models.
+        elec = [:Fp1, :Fp2, :F7, :F3, :Fz, :F4, :F8, :FC5, :FC1, :FC2, :FC6, :C3,
+                :Cz, :C4, :CP5, :CP1, :CP2, :CP6, :P7, :P3, :Pz, :P4, :P8, :O1, :Oz, :O2];
+
+        # Define a models Structure. All arguments are arrays of column name Symbols, e.g. [:Item, :Subject]
+        models = make_models([:Subject, :Timestamp], [:Item, :Condition], elec, [:Intercept, :Assoc, :Plaus]);
+
+        # Pre-process the data, using the following arguments:
+        # dbc19_surp_erp.csv -> original dbc19 erp data + surprisal values of multiple LLMs
+        @time process_data("../data/dbc19/dbc19_surp_erp.csv", "../data/dbc19/dbc19_assocplaus_rERP.csv", models, invert_preds=[:Assoc, :Plaus]);
+
+        # Read in processed data.
+        @time dt = read_data("../data/dbc19/dbc19_assocplaus_rERP.csv", models);
+
+        # Fit the rERP models, using the three arguments:
+        @time fit_models_wo_avg(dt, models, "../data/dbc19/dbc19_assocplaus_rERP"); # y_hat = beta0 + beta1*assoc + beta2*plaus (both assoc and plaus standardized+inverted)
+
+        # This will produce a very large _data.csv file (6.5 GB)
+
+
+end
+
+function dbc19_plausdata()
+
+        @time dt = DataFrame(CSV.File("../data/dbc19/dbc19_assocplaus_rERP_data.csv"))
+        dt_plaus = filter(row -> row.Spec == "[:Intercept, :Plaus]" && row.Type == "est", dt)
+        dt_plaus.Condition = convert(Vector{Any}, dt_plaus.Condition) # enable conversion from float to str
+        replace!(dt_plaus.Condition, 1.0 => "A", 2.0 => "B", 3.0 => "C") # recode Condition column to A,B,C
+        select!(dt_plaus, Not([:Spec, :Type]))# drop Spec & Type columns
+        CSV.write("../data/dbc19/dbc19_corrected_erp.csv", dt_plaus)
+
+        # Maybe enter surprisal columns as non-descriptor above, so we can carry them over?
+
+
+end
+
+#############################################################################################################################################
 #############################################################################################################################################
 
 study_ids = ["adsbc21","dbc19","adbc23"]
 surprisal_ids = ["leo13b_surp", "secretgpt2_surp", "gerpt2_surp", "gerpt2large_surp"]
 
-for (study_id, surprisal_id) in Iterators.product(study_ids, surprisal_ids)
-        run_analysis(study_id, surprisal_id)
-end
+#for (study_id, surprisal_id) in Iterators.product(study_ids, surprisal_ids)
+#        run_analysis(study_id, surprisal_id)
+#end
+
+dbc19_assocplaus()
+dbc19_plausdata()
