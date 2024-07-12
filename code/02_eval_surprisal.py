@@ -162,6 +162,21 @@ def prep_rERP_data(df, model_ids):
     print(f'Merged data shape after reset {merged_df.shape}')
     merged_df.to_csv(f'../data/{study_id}/{study_id}_surp_erp.csv', index = False) # new df containing additional surprisal columns 
 
+    if study_id == 'dbc19': # prepare dbc19 data that is corrected for component overlap
+        
+        print('dbc19 corrected')
+        erp_df2 = pd.read_csv(f'../data/{study_id}/{study_id}_corrected_erp.csv') # load ERP data
+        print(f'ERP data shape {erp_df2.shape}')
+        erp_df2.set_index(['Item','Condition'],inplace = True) # remove Item & Condition as columns, use as join index
+
+        print(f'Surp data shape {surp_df.shape}')
+        
+        merged_df2 = erp_df2.join(surp_df, how='left')
+        merged_df2.reset_index(inplace=True) # get back Item & Condition as columns
+        print(f'Merged data shape after reset {merged_df2.shape}')
+        merged_df2.to_csv(f'../data/{study_id}/{study_id}_corrected_surp_erp.csv', index = False) # new df containing additional surprisal columns 
+
+        
 
 ###################################################################################
 ###################################################################################

@@ -68,7 +68,7 @@ function dbc19_assocplaus()
         # Read in processed data.
         @time dt = read_data("../data/dbc19/dbc19_assocplaus_rERP.csv", models);
 
-        # Fit the rERP models, using the three arguments:
+        # Fit the rERP models _without_ averaging per time sample, condition and across subjects:
         @time fit_models_wo_avg(dt, models, "../data/dbc19/dbc19_assocplaus_rERP"); # y_hat = beta0 + beta1*assoc + beta2*plaus (both assoc and plaus standardized+inverted)
 
         # This will produce a very large _data.csv file (6.5 GB)
@@ -93,12 +93,12 @@ end
 #############################################################################################################################################
 #############################################################################################################################################
 
-study_ids = ["adsbc21","dbc19","adbc23"]
+study_ids = ["adsbc21","dbc19","adbc23","dbc19_corrected"]
 surprisal_ids = ["leo13b_surp", "secretgpt2_surp", "gerpt2_surp", "gerpt2large_surp"]
 
-#for (study_id, surprisal_id) in Iterators.product(study_ids, surprisal_ids)
-#        run_analysis(study_id, surprisal_id)
-#end
+for (study_id, surprisal_id) in Iterators.product(study_ids, surprisal_ids)
+        run_analysis(study_id, surprisal_id)
+end
 
-dbc19_assocplaus()
-dbc19_plausdata()
+#dbc19_assocplaus()
+#dbc19_plausdata()
