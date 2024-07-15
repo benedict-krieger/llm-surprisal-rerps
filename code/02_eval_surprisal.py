@@ -37,7 +37,7 @@ def kde_plot_conditions(df, model_id, make_title=True):
 
     study_id = str(df.study_id.unique()[0])
 
-    if study_id == 'dbc19':
+    if study_id == 'dbc19' or study_id == 'dbc19_corrected':
         r_dict= { 'a':'A: Baseline','b':'B: Event-related violation','c':'C: Event-unrelated violation'}
         df_new = df.replace({"Condition":r_dict})
         c_palette = ['black','red','blue']
@@ -123,7 +123,7 @@ def correlations(df, model_ids):
     study_id = str(df.study_id.unique()[0])
     surp_ids = [i+'_surp' for i in model_ids]
 
-    if study_id == 'dbc19':
+    if study_id == 'dbc19' or study_id == 'dbc19_corrected':
         df_sub = df[['Cloze', 'Association', 'Plausibility',*surp_ids]]
     
     if study_id == 'adsbc21':
@@ -150,7 +150,7 @@ def prep_rERP_data(df, model_ids):
     print(f'ERP data shape {erp_df.shape}')
     erp_df.set_index(['Item','Condition'],inplace = True) # remove Item & Condition as columns, use as join index
     
-    if study_id == 'dbc19':
+    if study_id == 'dbc19' or study_id == 'dbc19_corrected':
         surp_df = df[['Item', 'Condition', 'Cloze', *surp_ids]] # the dbc19 erp data is missing Cloze
     else:
         surp_df = df[['Item','Condition',*surp_ids]]
@@ -162,21 +162,6 @@ def prep_rERP_data(df, model_ids):
     print(f'Merged data shape after reset {merged_df.shape}')
     merged_df.to_csv(f'../data/{study_id}/{study_id}_surp_erp.csv', index = False) # new df containing additional surprisal columns 
 
-    if study_id == 'dbc19': # prepare dbc19 data that is corrected for component overlap
-        
-        print('dbc19 corrected')
-        erp_df2 = pd.read_csv(f'../data/{study_id}/{study_id}_corrected_erp.csv') # load ERP data
-        print(f'ERP data shape {erp_df2.shape}')
-        erp_df2.set_index(['Item','Condition'],inplace = True) # remove Item & Condition as columns, use as join index
-
-        print(f'Surp data shape {surp_df.shape}')
-        
-        merged_df2 = erp_df2.join(surp_df, how='left')
-        merged_df2.reset_index(inplace=True) # get back Item & Condition as columns
-        print(f'Merged data shape after reset {merged_df2.shape}')
-        merged_df2.to_csv(f'../data/{study_id}/{study_id}_corrected_surp_erp.csv', index = False) # new df containing additional surprisal columns 
-
-        
 
 ###################################################################################
 ###################################################################################
@@ -187,9 +172,11 @@ if __name__ == '__main__':
     adsbc21_df = pd.read_csv('../data/adsbc21/adsbc21.csv',sep=';')
     dbc19_df = pd.read_csv('../data/dbc19/dbc19.csv',sep=';')
     adbc23_df = pd.read_csv('../data/adbc23/adbc23.csv',sep=';')
+    dbc19_corrected_df = dbc19_df.copy()
+    dbc19_corrected_df["study_id"] = "dbc19_corrected"
 
-    study_dfs = [adsbc21_df, dbc19_df, adbc23_df]
-    study_ids = ['adsbc21', 'dbc19', 'adbc23']
+    study_dfs = [adsbc21_df, dbc19_df, adbc23_df, dbc19_corrected_df]
+    study_ids = ['adsbc21', 'dbc19', 'adbc23', 'dbc19_corrected']
     [os.makedirs(f'../results/{study}/plots/', exist_ok = True) for study in study_ids]
     model_ids = ['leo13b', 'secretgpt2','gerpt2', 'gerpt2large']
     make_title = True

@@ -39,7 +39,7 @@ make_plots <- function(
         data_vals <- c("#000000", "#BB5566", "#004488", "#DDAA33")
         topo = FALSE
         }
-    else if (study_id == 'dbc19') {
+    else if (study_id == 'dbc19' | study_id == 'dbc19_corrected') {
         time_windows <- list(c(300, 500), c(800, 1000))
         data_labs <- c("A: Baseline",
                     "B: Event related violation",
@@ -132,7 +132,7 @@ make_plots <- function(
     # DATA #
     ########
     eeg <- fread(glue("{data_path}_data.csv"))
-    if (study_id == 'dbc19' | study_id == 'adbc23') {
+    if (study_id == 'dbc19' | study_id == 'dbc19_corrected' | study_id == 'adbc23') {
     eeg$Condition <- factor(plyr::mapvalues(eeg$Condition, c(2, 1, 3),
                         c("B", "A", "C")), levels = c("A", "B", "C"))
     } else if (study_id == 'adsbc21') {
@@ -287,7 +287,7 @@ elec_all <- c("Fp1", "Fp2", "F7", "F3", "Fz", "F4", "F8", "FC5",
                 "FC1", "FC2", "FC6", "C3", "Cz", "C4", "CP5", "CP1",
                 "CP2", "CP6", "P7", "P3", "Pz", "P4", "P8", "O1", "Oz", "O2")
 
-study_ids = list("adsbc21", "dbc19", "adbc23")
+study_ids = list("adsbc21", "dbc19", "adbc23", "dbc19_corrected")
 surp_ids = list("leo13b_surp", "secretgpt2_surp", "gerpt2_surp", "gerpt2large_surp")
 infer_options = list(TRUE, FALSE)
 surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "secret GPT-2 surprisal", "gerpt2_surp" = "GerPT-2 surprisal", "gerpt2large_surp" = "GerPT-2 large surprisal")

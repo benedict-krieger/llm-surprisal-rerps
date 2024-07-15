@@ -3,6 +3,8 @@ paths:
 	mkdir -p ../results/adsbc21/plots
 	mkdir -p ../results/dbc19/plots
 	mkdir -p ../results/adbc23/plots
+	mkdir -p ../data/dbc19_corrected
+	mkdir -p ../results/dbc19_corrected/plots
 
 collect_leo13b_surp:
 	python 01_collect_surprisal.py -m leo13b
@@ -22,5 +24,5 @@ plot_rERP:
 analysis: paths eval_surp rERP plot_rERP
 
 clean:
-	rm -rf results
-	rm -rf data/*/*surp*
+	rm -rf ../results
+	rm -rf ../data/*/*surp*

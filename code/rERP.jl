@@ -6,6 +6,7 @@
 
 using DataFrames
 using Combinatorics: combinations
+using CSV
 using CSV: File, write
 using Distributions: cdf, TDist
 using StatsBase: mean, zscore, std
