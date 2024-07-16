@@ -80,6 +80,7 @@ function dbc19_plausdata()
 
         @time dt = DataFrame(CSV.File("../data/dbc19_corrected/dbc19_assocplaus_rERP_data.csv"))
         dt_plaus = filter(row -> row.Spec == "[:Intercept, :Plaus]" && row.Type == "est", dt)
+        dt_plaus = sort(dt_plaus, [:Item, :Condition]) # sort for item and condition in ascending order
         dt_plaus.Condition = convert(Vector{Any}, dt_plaus.Condition) # enable conversion from float to str
         replace!(dt_plaus.Condition, 1.0 => "A", 2.0 => "B", 3.0 => "C") # recode Condition column to A,B,C
         select!(dt_plaus, Not([:Spec, :Type]))# drop Spec & Type columns
