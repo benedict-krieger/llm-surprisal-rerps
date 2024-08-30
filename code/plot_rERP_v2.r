@@ -160,7 +160,8 @@ plot_single_elec <- function(
     omit_x = FALSE,
     omit_y = FALSE,
     annotate = FALSE,
-    text = ""
+    text = "",
+    highlight_background = FALSE
 ) { 
     if (modus %in% c("Quantile", "Condition")) {
         cols <- c("Spec", "Timestamp", modus)
@@ -214,7 +215,7 @@ plot_single_elec <- function(
             legend.key.width = unit(0.5, 'cm'),             # lgnd key width
             legend.title = element_text(size = 7),          # lgnd ttl font size; original: 7, prev: 11
             legend.text = element_text(size = 6))           # lgnd el font size; original: 6, prev: 11
-        gg <- gg + theme(plot.title = element_text(size = 7.5)) # original: 7.5, prev: 11.5
+        gg <- gg + theme(plot.title = element_text(size = 11.5)) # original: 7.5, prev: 11.5
         gg <- gg + theme(axis.text.x = element_text(size= 11), # prev: 14
                          axis.text.y = element_text(size = 11)) # prev 14
 
@@ -235,6 +236,9 @@ plot_single_elec <- function(
             gg <- gg + annotation_custom(text_label) 
         }
 
+        if (highlight_background != FALSE) {
+            gg <- gg + theme(panel.background = element_rect(fill = '#e6e6e6')) # bit darker: #e6e6e6
+        }
 
         # Save legend to file
         if (save_legend) {

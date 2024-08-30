@@ -82,7 +82,10 @@ make_plots <- function(
         modus = "Coefficient",
         ylims = c(10.5, -7),
         leg_labs = model_labs,
-        leg_vals = model_vals)
+        leg_vals = model_vals,
+        omit_legend = TRUE,
+        ci = FALSE
+        )
 
     plot_full_elec(
         data = coef,
@@ -153,14 +156,15 @@ make_plots <- function(
         title = "Observed",
         ylims = c(10.5, -7),
         modus = "Condition",
-        ci = ci,
+        ci = FALSE,
         leg_labs = data_labs,
         leg_vals = data_vals,
-        omit_legend = FALSE,
+        omit_legend = TRUE,
         save_legend = FALSE,
         omit_x = FALSE,
         omit_y = FALSE,
-        annotate = FALSE)
+        annotate = FALSE,
+        highlight_background = TRUE)
 
     plot_full_elec(
         data = obs,
@@ -168,7 +172,7 @@ make_plots <- function(
         file = glue("{plots_path}/Waveforms/Observed_Full.pdf"),
         title = "Observed",
         modus = "Condition",
-        ci = ci,
+        ci = FALSE,
         ylims = c(10.5, -7),
         leg_labs = data_labs,
         leg_vals = data_vals)
@@ -220,7 +224,7 @@ make_plots <- function(
             file = glue("{plots_path}/Waveforms/Estimated_{name}.pdf"),
             title = paste("Estimates", combo[i]),
             modus = "Condition",
-            ci = ci,
+            ci = FALSE,
             ylims = c(10.5, -7),
             leg_labs = data_labs,
             leg_vals = data_vals,
@@ -265,7 +269,8 @@ make_plots <- function(
             file = glue("{plots_path}/Waveforms/Residual_{name}.pdf"),
             title = paste("Residuals", combo[i]),
             modus = "Condition",
-            ci = ci,
+            ci = FALSE,
+            omit_legend = TRUE,
             ylims = c(6, -6),
             leg_labs = data_labs,
             leg_vals = data_vals)
@@ -292,18 +297,18 @@ surp_ids = list("leo13b_surp", "secretgpt2_surp", "gerpt2_surp", "gerpt2large_su
 infer_options = list(TRUE, FALSE)
 surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "secret GPT-2 surprisal", "gerpt2_surp" = "GerPT-2 surprisal", "gerpt2large_surp" = "GerPT-2 large surprisal")
 
-for (o in infer_options) {
-    for (st in study_ids) {
-        for (su in surp_ids) {
-            file = if (o) glue("{st}_{su}_across_subj_rERP") else glue("{st}_{su}_rERP")
-            print(file)
-            s_lab = surp_labs[su]
-            print(s_lab)
-            make_plots(file, elec_all, predictor = c("Intercept", su), model_labs = c("Intercept", s_lab), inferential = o, study_id = st, surp_id = su)
-        }
-    }
-}
+#for (o in infer_options) {
+#    for (st in study_ids) {
+#        for (su in surp_ids) {
+#            file = if (o) glue("{st}_{su}_across_subj_rERP") else glue("{st}_{su}_rERP")
+#            print(file)
+#            s_lab = surp_labs[su]
+#            print(s_lab)
+#            make_plots(file, elec_all, predictor = c("Intercept", su), model_labs = c("Intercept", s_lab), inferential = o, study_id = st, surp_id = su)
+#        }
+#    }
+#}
 
 # make_plots("dbc19_leo13b_surp_rERP", elec_all, predictor = c("Intercept", "leo13b_surp"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = FALSE, study_id = "dbc19", surp_id = "leo13b_surp")
-# make_plots("adsbc21_leo13b_surp_rERP", elec_all, predictor = c("Intercept", "leo13b_surp"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = FALSE, study_id = "adsbc21", surp_id = "leo13b_surp")
+ make_plots("adsbc21_leo13b_surp_rERP", elec_all, predictor = c("Intercept", "leo13b_surp"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = FALSE, study_id = "adsbc21", surp_id = "leo13b_surp")
 # make_plots("adbc23_leo13b_surp_rERP", elec_all, predictor = c("Intercept", "leo13b_surp"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = FALSE, study_id = "adbc23", surp_id = "leo13b_surp")
