@@ -237,7 +237,7 @@ plot_single_elec <- function(
         }
 
         if (highlight_background != FALSE) {
-            gg <- gg + theme(panel.background = element_rect(fill = '#e6e6e6')) # bit darker: #e6e6e6
+            gg <- gg + theme(panel.background = element_rect(fill = '#f0f0f0')) # bit darker: #e6e6e6
         }
 
         # Save legend to file
