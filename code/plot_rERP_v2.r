@@ -243,10 +243,16 @@ plot_single_elec <- function(
 
         if (highlight_time_windows != FALSE) {
             
+        #gg <- gg + annotate("rect", xmin = tws[1][[1]][1], xmax = tws[1][[1]][2],
+        #            ymin = ylims[1], ymax = ylims[2], alpha = .15)
+        #gg <- gg + annotate("rect", xmin = tws[2][[1]][1], xmax = tws[2][[1]][2],
+        #            ymin = ylims[1], ymax = ylims[2], alpha = .15)
+        
         gg <- gg + annotate("rect", xmin = tws[1][[1]][1], xmax = tws[1][[1]][2],
-                    ymin = ylims[1], ymax = ylims[2], alpha = .15)
+                    ymin = -Inf, ymax = Inf, alpha = .15)
         gg <- gg + annotate("rect", xmin = tws[2][[1]][1], xmax = tws[2][[1]][2],
-                    ymin = ylims[1], ymax = ylims[2], alpha = .15)
+                    ymin = -Inf, ymax = Inf, alpha = .15)
+        
         }        
 
         # Save legend to file

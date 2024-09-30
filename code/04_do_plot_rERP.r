@@ -37,14 +37,25 @@ make_plots <- function(
         time_windows <- list(c(350, 450), c(600, 800))
         data_labs <- c("A: A+E+", "B: A-E+", "C: A+E-", "D: A-E-")
         data_vals <- c("#000000", "#BB5566", "#004488", "#DDAA33")
+        observed_title <- "Observed"
         topo = FALSE
         }
-    else if (study_id == 'dbc19' | study_id == 'dbc19_corrected') {
+    else if (study_id == 'dbc19') {
         time_windows <- list(c(300, 500), c(800, 1000))
         data_labs <- c("A: Baseline",
                     "B: Event related violation",
                     "C: Event unrelated violation")
         data_vals <- c("#000000", "red", "blue")
+        observed_title <- "Observed"
+        topo = TRUE
+        }
+    else if (study_id == 'dbc19_corrected') {
+        time_windows <- list(c(300, 500), c(800, 1000))
+        data_labs <- c("A: Baseline",
+                    "B: Event related violation",
+                    "C: Event unrelated violation")
+        data_vals <- c("#000000", "red", "blue")
+        observed_title <- "Re-estimated"
         topo = TRUE
         }
     else if (study_id == 'adbc23') {
@@ -53,6 +64,7 @@ make_plots <- function(
                     "B: Less plausible, attraction",
                     "C: Implausible, no attraction")
             data_vals <- c("#000000", "red", "blue")
+        observed_title <- "Observed"
             topo = TRUE 
         }
     
@@ -153,7 +165,7 @@ make_plots <- function(
         data = obs,
         e = c("Pz"),
         file = glue("{plots_path}/Waveforms/Observed.pdf"),
-        title = "Observed",
+        title = observed_title,   #"Observed"
         ylims = c(10.5, -7),
         modus = "Condition",
         tws = time_windows,
@@ -165,7 +177,7 @@ make_plots <- function(
         omit_x = FALSE,
         omit_y = FALSE,
         annotate = FALSE,
-        highlight_background = TRUE)
+        highlight_time_windows = TRUE)
 
     plot_full_elec(
         data = obs,
@@ -272,11 +284,13 @@ make_plots <- function(
             file = glue("{plots_path}/Waveforms/Residual_{name}.pdf"),
             title = paste("Residuals", combo[i]),
             modus = "Condition",
+            tws = time_windows,
             ci = FALSE,
             omit_legend = TRUE,
             ylims = c(6, -6),
             leg_labs = data_labs,
-            leg_vals = data_vals)
+            leg_vals = data_vals,
+            highlight_time_windows = TRUE)
     #     plot_topo(
     #         data = res_set,
     #         file = paste0("../plots/", file, "/Topos/Residual_", name),
@@ -300,18 +314,18 @@ surp_ids = list("leo13b_surp", "secretgpt2_surp", "gerpt2_surp", "gerpt2large_su
 infer_options = list(TRUE, FALSE)
 surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "secret GPT-2 surprisal", "gerpt2_surp" = "GerPT-2 surprisal", "gerpt2large_surp" = "GerPT-2 large surprisal")
 
-#for (o in infer_options) {
-#    for (st in study_ids) {
-#        for (su in surp_ids) {
-#            file = if (o) glue("{st}_{su}_across_subj_rERP") else glue("{st}_{su}_rERP")
-#            print(file)
-#            s_lab = surp_labs[su]
-#            print(s_lab)
-#            make_plots(file, elec_all, predictor = c("Intercept", su), model_labs = c("Intercept", s_lab), inferential = o, study_id = st, surp_id = su)
-#        }
-#    }
-#}
+for (o in infer_options) {
+    for (st in study_ids) {
+        for (su in surp_ids) {
+            file = if (o) glue("{st}_{su}_across_subj_rERP") else glue("{st}_{su}_rERP")
+            print(file)
+            s_lab = surp_labs[su]
+            print(s_lab)
+            make_plots(file, elec_all, predictor = c("Intercept", su), model_labs = c("Intercept", s_lab), inferential = o, study_id = st, surp_id = su)
+        }
+    }
+}
 
 # make_plots("dbc19_leo13b_surp_rERP", elec_all, predictor = c("Intercept", "leo13b_surp"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = FALSE, study_id = "dbc19", surp_id = "leo13b_surp")
- make_plots("adsbc21_leo13b_surp_rERP", elec_all, predictor = c("Intercept", "leo13b_surp"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = FALSE, study_id = "adsbc21", surp_id = "leo13b_surp")
+# make_plots("adsbc21_leo13b_surp_rERP", elec_all, predictor = c("Intercept", "leo13b_surp"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = FALSE, study_id = "adsbc21", surp_id = "leo13b_surp")
 # make_plots("adbc23_leo13b_surp_rERP", elec_all, predictor = c("Intercept", "leo13b_surp"), model_labs = c("Intercept", "Leo-13b surprisal"), inferential = FALSE, study_id = "adbc23", surp_id = "leo13b_surp")

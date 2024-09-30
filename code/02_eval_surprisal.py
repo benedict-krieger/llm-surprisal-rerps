@@ -42,18 +42,24 @@ def kde_plot_conditions(df, model_id, make_title=True):
         df_new = df.replace({"Condition":r_dict})
         c_palette = ['black','red','blue']
         title = 'Delogu et al. (2019)'
+        x_lim = 44
+        y_lim = 0.04
 
     if study_id == 'adsbc21':
         r_dict ={'A':'A: A+E+','B':'B: A-E+','C':'C: A+E-', 'D':'D: A-E-'} 
         df_new = df.replace({"Condition":r_dict})
         c_palette = ["#000000", "#BB5566", "#004488", "#DDAA33"]
         title = 'Aurnhammer et al. (2021)'
+        x_lim = 28
+        y_lim = 0.06
 
     if study_id == 'adbc23':
         r_dict ={'A':'A: Plausible','B':'B: Less plausible, attraction','C':'C: Implausible, no attraction'} 
         df_new = df.replace({"Condition":r_dict})
         c_palette = ['black','red','blue']
         title = 'Aurnhammer et al. (2023)'
+        x_lim = 21
+        y_lim = 0.2
 
     if model_id == 'leo13b':
         surp_id = 'leo13b_surp'
@@ -71,23 +77,32 @@ def kde_plot_conditions(df, model_id, make_title=True):
         surp_id = 'gerpt2large_surp'
         x_lab_name = 'GerPT-2 large surprisal'
 
+    plt.figure(figsize=(4,4))
     sns.set(style='darkgrid')
     plot = sns.kdeplot(data=df_new,
                        x=surp_id,
                        hue='Condition',
                        palette=c_palette,
-                       clip=(0,df_new[surp_id].max()),
-                       fill=True)
+                       clip=(0,x_lim),
+                       fill=True,
+                       )
     
-    plot.set(xlabel=x_lab_name)
-    plot.set_xlim(0,df_new[surp_id].max())
+                        #clip=(0,df_new[surp_id].max()),
+    
+    #plot.set(xlabel=x_lab_name)
+    plot.set_xlabel(x_lab_name, fontsize = 11)
+    # plot.set_xlim(0,df_new[surp_id].max())
+    plot.set_xlim(0,x_lim) # 43 was the max surprisal value overall
+    plot.set_ylabel("Density", fontsize = 11)
+    plot.set_ylim(0,y_lim) 
 
     if make_title:
         #plot.set_title(title,fontsize=13,pad=5,x=0.12)
         plot.set_title(title)
 
     add_vlines(df, 'Condition', surp_id, c_palette)
-
+    plt.legend('', frameon=False)
+    
     plt.tight_layout()
     plt.savefig(f'../results/{study_id}/plots/{study_id}_{model_id}_conditions.pdf')
     plt.clf()
@@ -179,7 +194,7 @@ if __name__ == '__main__':
     study_ids = ['adsbc21', 'dbc19', 'adbc23', 'dbc19_corrected']
     [os.makedirs(f'../results/{study}/plots/', exist_ok = True) for study in study_ids]
     model_ids = ['leo13b', 'secretgpt2','gerpt2', 'gerpt2large']
-    make_title = True
+    make_title = False
     bpe_dict = dict()
 
     print("Density plots...")
@@ -194,5 +209,5 @@ if __name__ == '__main__':
 
     print("Correlations...")
     [correlations(d, model_ids) for d in study_dfs]
-    print("Preparing rERPs...")
-    [prep_rERP_data(d, model_ids) for d in study_dfs]
+    #print("Preparing rERPs...")
+    #[prep_rERP_data(d, model_ids) for d in study_dfs]
