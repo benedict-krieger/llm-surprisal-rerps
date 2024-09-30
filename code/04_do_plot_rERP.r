@@ -156,6 +156,7 @@ make_plots <- function(
         title = "Observed",
         ylims = c(10.5, -7),
         modus = "Condition",
+        tws = time_windows,
         ci = FALSE,
         leg_labs = data_labs,
         leg_vals = data_vals,
@@ -224,6 +225,7 @@ make_plots <- function(
             file = glue("{plots_path}/Waveforms/Estimated_{name}.pdf"),
             title = paste("Estimates", combo[i]),
             modus = "Condition",
+            tws = time_windows, # overwrite default tws with study-specific ones
             ci = FALSE,
             ylims = c(10.5, -7),
             leg_labs = data_labs,
@@ -231,7 +233,8 @@ make_plots <- function(
             omit_x = FALSE,
             omit_y= FALSE,
             omit_legend = TRUE,
-            annotate = FALSE)
+            annotate = FALSE,
+            highlight_time_windows = TRUE)
     #     plot_topo(
     #         data = est_set,
     #         file = paste0("../plots/", file, "/Topos/Estimated_", name),

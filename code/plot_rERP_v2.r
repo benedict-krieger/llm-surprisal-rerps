@@ -161,7 +161,8 @@ plot_single_elec <- function(
     omit_y = FALSE,
     annotate = FALSE,
     text = "",
-    highlight_background = FALSE
+    highlight_background = FALSE,
+    highlight_time_windows = FALSE
 ) { 
     if (modus %in% c("Quantile", "Condition")) {
         cols <- c("Spec", "Timestamp", modus)
@@ -239,6 +240,14 @@ plot_single_elec <- function(
         if (highlight_background != FALSE) {
             gg <- gg + theme(panel.background = element_rect(fill = '#f0f0f0')) # bit darker: #e6e6e6
         }
+
+        if (highlight_time_windows != FALSE) {
+            
+        gg <- gg + annotate("rect", xmin = tws[1][[1]][1], xmax = tws[1][[1]][2],
+                    ymin = ylims[1], ymax = ylims[2], alpha = .15)
+        gg <- gg + annotate("rect", xmin = tws[2][[1]][1], xmax = tws[2][[1]][2],
+                    ymin = ylims[1], ymax = ylims[2], alpha = .15)
+        }        
 
         # Save legend to file
         if (save_legend) {
