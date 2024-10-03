@@ -166,9 +166,9 @@ def prep_rERP_data(df, model_ids):
     erp_df.set_index(['Item','Condition'],inplace = True) # remove Item & Condition as columns, use as join index
     
     if study_id == 'dbc19' or study_id == 'dbc19_corrected':
-        surp_df = df[['Item', 'Condition', 'Cloze', *surp_ids]] # the dbc19 erp data is missing Cloze
+        surp_df = df[['Item', 'Condition', 'Zipf_freq', 'Tw_position', 'Cloze', *surp_ids]] # the dbc19 erp data is missing Cloze
     else:
-        surp_df = df[['Item','Condition',*surp_ids]]
+        surp_df = df[['Item','Condition', 'Zipf_freq', 'Tw_position',*surp_ids]]
     surp_df.set_index(['Item','Condition'], inplace=True) # remove Item & Condition as columns, use as join index
     print(f'Surp data shape {surp_df.shape}')
     
@@ -209,5 +209,5 @@ if __name__ == '__main__':
 
     print("Correlations...")
     [correlations(d, model_ids) for d in study_dfs]
-    #print("Preparing rERPs...")
-    #[prep_rERP_data(d, model_ids) for d in study_dfs]
+    print("Preparing rERPs...")
+    [prep_rERP_data(d, model_ids) for d in study_dfs]
