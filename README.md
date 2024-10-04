@@ -35,13 +35,13 @@ conda env create -f llm-surprisal-rerps.yml
 ```
 
 - Julia (tested on 1.9)
-    - DataFrames
+    - CategoricalArrays
     - Combinatorics
     - CSV
+    - DataFrames
     - Distributions
-    - StatsBase
     - LinearAlgebra
-    - CategoricalArrays
+    - StatsBase
 
 - R (tested on 4.3.1)
     - here

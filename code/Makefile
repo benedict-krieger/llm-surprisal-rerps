@@ -1,5 +1,6 @@
 paths:
 	mkdir -p ../results
+	mkdir -p ../results/erp_aic
 	mkdir -p ../results/adsbc21/plots
 	mkdir -p ../results/dbc19/plots
 	mkdir -p ../results/adbc23/plots
