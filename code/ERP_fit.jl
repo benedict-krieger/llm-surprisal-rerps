@@ -1,7 +1,9 @@
 using CSV
 using DataFrames
 using MixedModels
+using PlotlyJS
 using StatsBase
+using StatsPlots
 
 function load_data()
 
@@ -103,17 +105,67 @@ end
 
 studies = @time load_data()
 aic_df = @time predict_tws(studies)
+# Filter so that we have AICs for dbc19 only for the N4 and for dbc19_corrected only for the P6 windows
+aic_df = filter(row -> !((row.study == "dbc19_corrected" && row.time_window == "N400") || (row.study == "dbc19" && row.time_window == "P600")), aic_df)
+aic_df.study = replace(aic_df.study, "dbc19_corrected" => "dbc19")
+aic_df[9:16, :] = vcat(aic_df[13:16, :], aic_df[9:12, :]) # Swapping rows to maintain N4/P6 order
+
 CSV.write("../results/erp_aic/aic_diffs.csv", aic_df)
 
 ####################
 #### Plot test #####
 ####################
 
-# Filter so that we have AICs for dbc19 only for the N4 and for dbc19_corrected only for the P6 windows
-#aic_df2 = filter(row -> !((row.study == "dbc19_corrected" && row.time_window == "N400") || (row.study == "dbc19" && row.time_window == "P600")), aic_df)
-#aic_df2.study = replace(aic_df2.study, "dbc19_corrected" => "dbc19")
-#aic_df2[9:16, :] = vcat(aic_df2[13:16, :], aic_df2[9:12, :]) # Swapping rows to maintain N4/P6 order
-#aic_df2
+#study_labs =  Dict(
+#    "adsbc21" => "Aurnhammer et al. (2021)",
+#    "dbc19" => "Delogu et al. (2019)",
+#    "adbc23" => "Aurnhammer et al. (2023)")
+
+#aic_df.study_labs = [study_labs[study] for study in aic_df.study]
+#study_lab_order = ["Aurnhammer et al. (2021)", "Delogu et al. (2019)", "Aurnhammer et al. (2023)"] # order to present on x-axis
+
+#lme_labs =  Dict(
+#    "condition" => "Condition",
+#    "leo13b" => "Leo-13b",
+#    "gerpt2large" => "GerPT-2 large",
+#    "gerpt2" => "GerPT-2")
+
+#aic_df.lme_labs = [lme_labs[lme] for lme in aic_df.lme]
+#lme_lab_order = ["Condition", "Leo-13b", "GerPT-2 large", "GerPT-2"] # order to present on x-axis
+
+
+
+#n4_aic_df = filter(row -> row.time_window == "N400", aic_df)
+
+
+#groupedbar(
+#    n4_aic_df.study_labs,
+#    n4_aic_df.norm_aic,
+#    group = n4_aic_df.lme_labs,
+#    xlabel = "Groups",
+#    ylabel = "Regression AIC - Null AIC",
+#    title = "N400",
+#    bar_width = 0.67,
+#    lw = 0,
+#    framestyle = :box)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # N400 heatmap
 #n4_aic_df = filter(row -> row.time_window == "N400", aic_df2)
@@ -131,3 +183,4 @@ CSV.write("../results/erp_aic/aic_diffs.csv", aic_df)
 #    end
 #end
 #savefig(p,"../results/erp_aic/heatmap_test.png")
+
