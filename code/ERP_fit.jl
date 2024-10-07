@@ -4,6 +4,7 @@ using MixedModels
 using PlotlyJS
 using StatsBase
 using StatsPlots
+using StatsModels
 
 function load_data()
 
@@ -90,6 +91,7 @@ function predict_tws(studies::Dict{String, DataFrame})
                 model_name = f[1] 
                 println("Fitting $(model_name) model")
                 model = fit(MixedModel, f[2], df_window)
+                println(model)
                 model_aic = aic(model)
 
                 aic_diff = model_aic - null_aic # normalize by null model
