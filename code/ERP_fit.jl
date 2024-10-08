@@ -1,10 +1,8 @@
 using CSV
 using DataFrames
 using MixedModels
-using PlotlyJS
 using StatsBase
-using StatsPlots
-using StatsModels
+#using StatsModels
 
 function load_data()
 
@@ -63,7 +61,7 @@ function predict_tws(studies::Dict{String, DataFrame})
 
     for (study_id, df) in studies
 
-        println(study_id)
+        println("######## $(study_id) ########\n\n")
 
         # Z-transform predictors
         df.z_leo13b_surp = zscore(df.leo13b_surp)
@@ -74,7 +72,7 @@ function predict_tws(studies::Dict{String, DataFrame})
 
         for (window, interval) in time_windows[study_id]
 
-            println(window)
+            println("#### $(window) ####\n")
 
             df_window = filter(row -> row.Timestamp >= interval[1] && row.Timestamp <= interval[2], df) # filter for time window
             df_window = stack(df_window, elec, cols; variable_name="Electrode", value_name=window) # melt data into long format, i.e. one col for elec
@@ -82,16 +80,17 @@ function predict_tws(studies::Dict{String, DataFrame})
             window == "N400" ? formulas = n4_formulas : formulas = p6_formulas
             
             # Null model
-            println("Fitting $(formulas[1][1]) model")
-            println(formulas[1][2])
+            println("## Fitting $(formulas[1][1]) model ##\n")
+            #println(formulas[1][2])
             null_model = fit(MixedModel, formulas[1][2], df_window)
+            println(null_model)
             null_aic = aic(null_model)
             
             for f in formulas[2:end]
                 model_name = f[1] 
-                println("Fitting $(model_name) model")
+                println("## Fitting $(model_name) model ## \n")
                 model = fit(MixedModel, f[2], df_window)
-                println(model)
+                println("$(model)\n\n")
                 model_aic = aic(model)
 
                 aic_diff = model_aic - null_aic # normalize by null model
