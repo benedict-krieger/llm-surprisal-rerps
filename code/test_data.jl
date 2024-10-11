@@ -23,14 +23,32 @@ dbc19_elec = [:Fz, :Cz, :Pz, :F3, :FC1, :FC5, :F4, :FC2, :FC6,
 
 # Reshape so that Electrode is one column
 cols = [:TrialNum, :Item, :Condition, :Subject, :Timestamp, :leo13b_surp, :gerpt2_surp, :gerpt2large_surp]
-dbc19n4_tall = stack(dbc19n4, elec, cols; variable_name="Electrode", value_name="N400") # melt data into long format, i.e. one col for elec
+dbc19n4_tall = stack(dbc19n4, dbc19_elec, cols; variable_name="Electrode", value_name="N400") # melt data into long format, i.e. one col for elec
 
-#
+# This is what we want to do for the lmes, like james (using elec not dbc19elec)
 group = [:Item, :Condition, :Subject, :Electrode, :leo13b_surp, :gerpt2_surp, :gerpt2large_surp]
 dbc19n4_g = groupby(dbc19n4_tall,group)
 dbc19n4_c = combine(dbc19n4_g, :N400 => mean)
 # For each electrode 1 mean N400 voltage when filtering like this
 filter(row -> (row.Item==1) && (row.Condition=="A") && (row.Subject ==5),dbc19n4_c)
+
+# This is to replicate Francesc's N400 means per con
+# Average by subject and by condition
+dbc19n4_g1 = groupby(dbc19n4_tall,[:Subject, :Condition])
+dbc19n4_c1 = combine(dbc19n4_g1, :N400 => mean)
+rename!(dbc19n4_c1, :N400_mean => :N400)
+
+# Average across subjects
+dbc19n4_g2 = groupby(dbc19n4_c1, :Condition)
+dbc19n4_c2 = combine(dbc19n4_g2, :N400 => mean)
+dbc19n4_c2
+
+
+
+
+
+
+
 
 #length(unique(dbc19n4_c.TrialNum))
 #filter(row -> row.TrialNum == 197, dbc19n4_c)

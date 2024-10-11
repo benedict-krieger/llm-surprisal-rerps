@@ -63,7 +63,6 @@ aic_df <- aic_df %>%
         lme_labs = factor(lme, levels = c("condition", "leo13b", "gerpt2large", "gerpt2"), labels = c("Condition", "LeoLM", "GerPT-2 large", "GerPT-2"))
     )
 
-test <-ggplot(aic_df, aes(x = time_window, y = norm_aic, fill = lme_labs)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "", y = "Regression AIC - Null AIC", fill = "LME") +
   theme_minimal() +

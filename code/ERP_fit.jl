@@ -85,6 +85,7 @@ function predict_tws(studies::Dict{String, DataFrame})
 
             df_window = filter(row -> row.Timestamp >= interval[1] && row.Timestamp <= interval[2], df) # filter for time window
             df_window = stack(df_window, elec, cols; variable_name="Electrode", value_name=window) # melt data into long format, i.e. one col for elec
+            first(df_window,10)
 
             df_window_g = groupby(df_window,group)
             df_window_c = combine(df_window_g, ws => mean)
