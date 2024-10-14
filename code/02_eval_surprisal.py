@@ -176,6 +176,48 @@ def prep_rERP_data(df, model_ids):
     merged_df.reset_index(inplace=True) # get back Item & Condition as columns
     print(f'Merged data shape after reset {merged_df.shape}')
     merged_df.to_csv(f'../data/{study_id}/{study_id}_surp_erp.csv', index = False) # new df containing additional surprisal columns 
+    return merged_df
+
+
+##########################
+#### Prepare LME data ####
+##########################
+
+def prep_LME_data(study_id_list):
+
+    time_windows = {
+        "adsbc21" : {
+            "N400" : (350,450),
+            "P600" : (600,800)
+        },
+        "dbc19" : {
+            "N400" : (300,500),
+            "P600" : (800,1000)
+        },
+        "dbc19_corrected" : {
+            "N400" : (300,500),
+            "P600" : (800,1000)
+        },
+        "adbc23" : {
+            "N400" : (300,500),
+            "P600" : (600,1000)
+        }    
+    }
+
+    elec = ["Fp1", "Fp2", "F7", "F3", "Fz", "F4", "F8", "FC5", "FC1", "FC2", "FC6", "C3",
+            "Cz", "C4", "CP5", "CP1", "CP2", "CP6", "P7", "P3", "Pz", "P4", "P8", "O1", "Oz", "O2"]
+    
+    for study_id in study_id_list:
+        print(study_id)
+        n400 = time_windows[study_id]["N400"]
+        p600 = time_windows[study_id]["P600"]
+        print(n400,p600)
+        df = pd.read_csv(f"../data/{study_id}/{study_id}_surp_erp.csv")
+        #id_cols = [col for col in df if col not in elec] # all cols that are not specified electrodes
+        
+        #### N400 ####
+        n4_df = df[df["Timestamp"].isin(range(n400[0],n400[1]+1))] # +1 because of exclusive upper bound
+        
 
 
 ###################################################################################
@@ -197,17 +239,18 @@ if __name__ == '__main__':
     make_title = False
     bpe_dict = dict()
 
-    print("Density plots...")
-    for args in itertools.product(study_dfs,model_ids):
-        kde_plot_conditions(*args,make_title)
-        check_bpe_splits(*args,bpe_dict)
+    #print("Density plots...")
+    #for args in itertools.product(study_dfs,model_ids):
+    #    kde_plot_conditions(*args,make_title)
+    #    check_bpe_splits(*args,bpe_dict)
 
-    bpe_df = pd.DataFrame.from_dict(bpe_dict,
-                                    orient='index',
-                                    columns= ['study_id','model_id','bpe_prop'])
-    bpe_df.to_csv('../results/bpe_splits.csv', sep = ';', index = False)
+    #bpe_df = pd.DataFrame.from_dict(bpe_dict,
+    #                                orient='index',
+    #                                columns= ['study_id','model_id','bpe_prop'])
+    #bpe_df.to_csv('../results/bpe_splits.csv', sep = ';', index = False)
 
-    print("Correlations...")
-    [correlations(d, model_ids) for d in study_dfs]
-    print("Preparing rERPs...")
-    [prep_rERP_data(d, model_ids) for d in study_dfs]
+    #print("Correlations...")
+    #[correlations(d, model_ids) for d in study_dfs]
+    #print("Preparing rERPs...")
+    #rERP_dfs = [prep_rERP_data(d, model_ids) for d in study_dfs]
+    #df = prep_LME_data(["adsbc21"])
