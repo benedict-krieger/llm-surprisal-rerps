@@ -183,7 +183,7 @@ def prep_rERP_data(df, model_ids):
 #### Prepare LME data ####
 ##########################
 
-def prep_LME_data(study_id_list):
+def prep_LME_data(study_id):
 
     time_windows = {
         "adsbc21" : {
@@ -207,17 +207,26 @@ def prep_LME_data(study_id_list):
     elec = ["Fp1", "Fp2", "F7", "F3", "Fz", "F4", "F8", "FC5", "FC1", "FC2", "FC6", "C3",
             "Cz", "C4", "CP5", "CP1", "CP2", "CP6", "P7", "P3", "Pz", "P4", "P8", "O1", "Oz", "O2"]
     
-    for study_id in study_id_list:
-        print(study_id)
-        n400 = time_windows[study_id]["N400"]
-        p600 = time_windows[study_id]["P600"]
-        print(n400,p600)
-        df = pd.read_csv(f"../data/{study_id}/{study_id}_surp_erp.csv")
-        #id_cols = [col for col in df if col not in elec] # all cols that are not specified electrodes
-        
-        #### N400 ####
-        n4_df = df[df["Timestamp"].isin(range(n400[0],n400[1]+1))] # +1 because of exclusive upper bound
-        
+    tws = ["N400","P600"]
+
+    print(study_id)
+    df = pd.read_csv(f"../data/{study_id}/{study_id}_surp_erp.csv")
+    id_cols = ["Subject","Item","Condition","leo13b_surp","gerpt2large_surp","gerpt2_surp","Zipf_freq","Tw_position"] # cols we want to sustain throughout melting, Electrode will become another column
+    id_cols_tn = ["TrialNum","Subject","Item","Condition","leo13b_surp","gerpt2large_surp","gerpt2_surp","Zipf_freq","Tw_position"] # cols we want to sustain throughout melting, Electrode will become another column
+
+    for tw in tws:
+        interval = time_windows[study_id][tw]
+        print(f"{tw}: {interval}")
+
+        df_window = df[df["Timestamp"].isin(range(interval[0],interval[1]+1))] # +1 because of exclusive upper bound
+        # Avg by trial
+        df_window = df_window.groupby(["TrialNum"], as_index=False).agg({
+            **{i:"first" for i in id_cols},
+            **{e:"mean" for e in elec}
+        })
+        df_window = pd.melt(df_window, id_vars = id_cols_tn, var_name="Electrode", value_name=f"{tw}_mean")
+        df_window.to_csv(f"../data/{study_id}/{study_id}_{tw}.csv", index=False)
+
 
 
 ###################################################################################
@@ -239,18 +248,21 @@ if __name__ == '__main__':
     make_title = False
     bpe_dict = dict()
 
-    #print("Density plots...")
-    #for args in itertools.product(study_dfs,model_ids):
-    #    kde_plot_conditions(*args,make_title)
-    #    check_bpe_splits(*args,bpe_dict)
+    print("Density plots...")
+    for args in itertools.product(study_dfs,model_ids):
+        kde_plot_conditions(*args,make_title)
+        check_bpe_splits(*args,bpe_dict)
 
-    #bpe_df = pd.DataFrame.from_dict(bpe_dict,
-    #                                orient='index',
-    #                                columns= ['study_id','model_id','bpe_prop'])
-    #bpe_df.to_csv('../results/bpe_splits.csv', sep = ';', index = False)
+    bpe_df = pd.DataFrame.from_dict(bpe_dict,
+                                    orient='index',
+                                    columns= ['study_id','model_id','bpe_prop'])
+    bpe_df.to_csv('../results/bpe_splits.csv', sep = ';', index = False)
 
-    #print("Correlations...")
-    #[correlations(d, model_ids) for d in study_dfs]
-    #print("Preparing rERPs...")
-    #rERP_dfs = [prep_rERP_data(d, model_ids) for d in study_dfs]
-    #df = prep_LME_data(["adsbc21"])
+    print("Correlations...")
+    [correlations(d, model_ids) for d in study_dfs]
+    
+    print("Preparing rERPs...")
+    [prep_rERP_data(d, model_ids) for d in study_dfs]
+    
+    print("Preparing LME data...")
+    [prep_LME_data(s) for s in study_ids]

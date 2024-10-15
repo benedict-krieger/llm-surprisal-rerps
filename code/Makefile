@@ -27,3 +27,6 @@ analysis: paths eval_surp rERP plot_rERP
 clean:
 	rm -rf ../results
 	rm -rf ../data/*/*surp*
+	rm -rf ../data/*/*N400*
+	rm -rf ../data/*/*P600*
+	rm -rf ../data/*/*assocplaus*

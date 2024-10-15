@@ -59,7 +59,7 @@ function dbc19_assocplaus()
                 :Cz, :C4, :CP5, :CP1, :CP2, :CP6, :P7, :P3, :Pz, :P4, :P8, :O1, :Oz, :O2];
 
         # Define a models Structure. All arguments are arrays of column name Symbols, e.g. [:Item, :Subject]
-        models = make_models([:Subject, :Timestamp], [:Item, :Condition], elec, [:Intercept, :Assoc, :Plaus]);
+        models = make_models([:Subject, :Timestamp], [:Item, :Condition, :TrialNum], elec, [:Intercept, :Assoc, :Plaus]);
 
         # Pre-process the data, using the following arguments:
         # dbc19_erp.csv -> original dbc19 erp data
