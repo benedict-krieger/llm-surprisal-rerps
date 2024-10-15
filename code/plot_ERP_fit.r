@@ -31,8 +31,16 @@ p <-  ggplot(aic_df, aes(x = time_window, y = norm_aic, fill = lme_labs)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "", y = "Regression AIC - Null AIC", fill = "LME") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  #theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(. ~ study_labs, scales = "free_x", space = "free_x") +
-  scale_fill_viridis_d()
+  scale_fill_viridis_d() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+    axis.text.y = element_text(size = 11),
+    axis.title.y = element_text(size = 11),
+    legend.text = element_text(size = 11),
+    legend.title = element_text(size = 11),
+    strip.text = element_text(size = 11)
+  )
 
-ggsave("../results/erp_aic/lme_fit_tws.pdf", plot=p, width = 8, height = 6)
+ggsave("../results/erp_aic/lme_fit_tws.pdf", plot=p, width = 8, height = 3)
