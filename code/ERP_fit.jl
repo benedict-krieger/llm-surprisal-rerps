@@ -2,21 +2,39 @@ using CSV
 using DataFrames
 using MixedModels
 using StatsBase
-#using StatsModels
 
 function load_data()
 
     println("Loading data")
-    adsbc21_df = CSV.read("../data/adsbc21/adsbc21_surp_erp.csv", DataFrame)
-    dbc19_df = CSV.read("../data/dbc19/dbc19_surp_erp.csv", DataFrame)
-    dbc19_corrected_df = CSV.read("../data/dbc19_corrected/dbc19_corrected_surp_erp.csv", DataFrame)
-    adbc23_df = CSV.read("../data/adbc23/adbc23_surp_erp.csv", DataFrame)
+    adsbc21_n4_df = CSV.read("../data/adsbc21/adsbc21_N400.csv", DataFrame)
+    adsbc21_p6_df = CSV.read("../data/adsbc21/adsbc21_P600.csv", DataFrame)
+    
+    dbc19_n4_df = CSV.read("../data/dbc19/dbc19_N400.csv", DataFrame)
+    dbc19_p6_df = CSV.read("../data/dbc19/dbc19_P600.csv", DataFrame)
+    
+    dbc19_corrected_n4_df = CSV.read("../data/dbc19_corrected/dbc19_corrected_N400.csv", DataFrame)
+    dbc19_corrected_p6_df = CSV.read("../data/dbc19_corrected/dbc19_corrected_P600.csv", DataFrame)
+    
+    adbc23_n4_df = CSV.read("../data/adbc23/adbc23_N400.csv", DataFrame)
+    adbc23_p6_df = CSV.read("../data/adbc23/adbc23_P600.csv", DataFrame)
 
     studies = Dict(
-        "adsbc21" => adsbc21_df,
-        "dbc19" => dbc19_df,
-        "dbc19_corrected" => dbc19_corrected_df,
-        "adbc23" => adbc23_df
+        "adsbc21" => Dict(
+            "N400" => adsbc21_n4_df,
+            "P600" => adsbc21_p6_df
+        ),
+        "dbc19" => Dict(
+            "N400" => dbc19_n4_df,
+            "P600" => dbc19_p6_df
+        ),
+        "dbc19_corrected" => Dict(
+            "N400" => dbc19_corrected_n4_df,
+            "P600" => dbc19_corrected_p6_df
+        ),
+        "adbc23" => Dict(
+            "N400" => adbc23_n4_df,
+            "P600" => adbc23_p6_df
+        )
         )
     
     return studies
@@ -25,22 +43,8 @@ end
 
 
 
-function predict_tws(studies::Dict{String, DataFrame})
+function predict_tws(studies)
     
-    time_windows = Dict(
-        "adsbc21" => Dict("N400" => (350,450), "P600" => (600,800)),
-        "dbc19" => Dict("N400" => (300,500), "P600" => (800,1000)),
-        "dbc19_corrected" => Dict("N400" => (300,500), "P600" => (800,1000)),
-        "adbc23" => Dict("N400" => (300,500), "P600" => (600,1000))    
-    )
-
-    elec = [:Fp1, :Fp2, :F7, :F3, :Fz, :F4, :F8, :FC5, :FC1, :FC2, :FC6, :C3,
-            :Cz, :C4, :CP5, :CP1, :CP2, :CP6, :P7, :P3, :Pz, :P4, :P8, :O1, :Oz, :O2]
-    cols = [:Item, :Condition, :Subject, :Timestamp, :z_Zipf_freq,
-            :z_Tw_position, :z_leo13b_surp, :z_gerpt2_surp, :z_gerpt2large_surp]
-    group = [:Item, :Condition, :Subject, :Electrode, :z_Zipf_freq,
-            :z_Tw_position, :z_leo13b_surp, :z_gerpt2_surp, :z_gerpt2large_surp]
-
     # Define LME formulas for time windows
     # N400
     n4_null_f = @formula N400_mean ~ z_Zipf_freq + z_Tw_position + (1|Item) + (1|Subject) + (1|Electrode)
@@ -61,67 +65,53 @@ function predict_tws(studies::Dict{String, DataFrame})
     # Initialize data frame to store AICs
     aic_df = DataFrame(study = String[], time_window = String[], lme = String[], norm_aic = Float64[]) 
     
-    
 
-    for (study_id, df) in studies
+    for (study_id, tw_dict) in pairs(studies)
 
         println("\n######## $(study_id) ########\n")
 
-        # Z-transform predictors
-        df.z_leo13b_surp = zscore(df.leo13b_surp)
-        df.z_gerpt2large_surp = zscore(df.gerpt2large_surp)
-        df.z_gerpt2_surp = zscore(df.gerpt2_surp)
-        df.z_Zipf_freq = zscore(df.Zipf_freq)
-        df.z_Tw_position = zscore(df.Tw_position)
-        
-        # Store fitted models
-        fitted_models = Any[]
+        for (tw,df) in pairs(tw_dict)
 
-        for (window, interval) in time_windows[study_id]
-
-            println("#### $(window) ####\n")
-
-            window == "N400" ? ws = :N400 : ws = :P600 # convert tw string to symbol
-
-            df_window = filter(row -> row.Timestamp >= interval[1] && row.Timestamp <= interval[2], df) # filter for time window
-            df_window = stack(df_window, elec, cols; variable_name="Electrode", value_name=window) # melt data into long format, i.e. one col for elec
-            first(df_window,10)
-
-            df_window_g = groupby(df_window,group)
-            df_window_c = combine(df_window_g, ws => mean)
-
-            CSV.write("../data/$(study_id)/$(study_id)_$(window)_mean.csv",df_window_c)
-
-            window == "N400" ? formulas = n4_formulas : formulas = p6_formulas
+            println("#### $(tw) ####")
             
+            # Z-transform continuous predictors
+            df.z_leo13b_surp = zscore(df.leo13b_surp)
+            df.z_gerpt2large_surp = zscore(df.gerpt2large_surp)
+            df.z_gerpt2_surp = zscore(df.gerpt2_surp)
+            df.z_Zipf_freq = zscore(df.Zipf_freq)
+            df.z_Tw_position = zscore(df.Tw_position)
+
+            tw == "N400" ? formulas = n4_formulas : formulas = p6_formulas
+        
+            # Store fitted models
+            fitted_models = Any[]
+
             # Null model
             println("## Fitting $(formulas[1][1]) model ##")
-            null_model = fit(MixedModel, formulas[1][2], df_window_c)
+            null_model = fit(MixedModel, formulas[1][2], df)
             null_aic = aic(null_model)
             push!(fitted_models, null_model)
-            
+
             for f in formulas[2:end]
                 model_name = f[1] 
                 println("## Fitting $(model_name) model ## ")
-                model = fit(MixedModel, f[2], df_window_c)
+                model = fit(MixedModel, f[2], df)
                 model_aic = aic(model)
                 push!(fitted_models, model)
 
                 aic_diff = model_aic - null_aic # normalize by null model
-                push!(aic_df, (study_id,window,model_name,aic_diff))
+                push!(aic_df, (study_id,tw,model_name,aic_diff))
             end
-
-            open("../results/erp_aic/$(study_id)_$(window)_lme.txt", "w") do file
+            
+            open("../results/erp_aic/$(study_id)_$(tw)_lme.txt", "w") do file
                 for m in fitted_models
                     write(file,string(m))
-                    write(file,"\n\n\n\n")
-                    write(file,"##############################################")
-                    write(file,"\n\n\n\n")
+                    write(file,"\n\n\n\n#####################################\n\n\n\n")
                 end
             end
 
         end
-
+        
     end
 
     return (aic_df)

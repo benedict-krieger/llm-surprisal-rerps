@@ -212,7 +212,7 @@ def prep_LME_data(study_id):
     print(study_id)
     df = pd.read_csv(f"../data/{study_id}/{study_id}_surp_erp.csv")
     id_cols = ["Subject","Item","Condition","leo13b_surp","gerpt2large_surp","gerpt2_surp","Zipf_freq","Tw_position"] # cols we want to sustain throughout melting, Electrode will become another column
-    id_cols_tn = ["TrialNum","Subject","Item","Condition","leo13b_surp","gerpt2large_surp","gerpt2_surp","Zipf_freq","Tw_position"] # cols we want to sustain throughout melting, Electrode will become another column
+    id_cols_tn = ["TrialNum","Subject","Item","Condition","leo13b_surp","gerpt2large_surp","gerpt2_surp","Zipf_freq","Tw_position"]
 
     for tw in tws:
         interval = time_windows[study_id][tw]
