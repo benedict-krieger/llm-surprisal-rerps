@@ -224,7 +224,7 @@ def prep_LME_data(study_id):
             **{i:"first" for i in id_cols},
             **{e:"mean" for e in elec}
         })
-        df_window = pd.melt(df_window, id_vars = id_cols_tn, var_name="Electrode", value_name=f"{tw}_mean")
+        df_window = pd.melt(df_window, id_vars = id_cols_tn, value_vars=elec, var_name="Electrode", value_name=f"{tw}_mean")
         df_window.to_csv(f"../data/{study_id}/{study_id}_{tw}.csv", index=False)
 
 
