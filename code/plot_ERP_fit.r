@@ -51,7 +51,8 @@ p <-  ggplot(df, aes(x = time_window, y = norm_aic, fill = lme_labs)) +
   facet_grid(. ~ study_labs, scales = "free_x", space = "free_x") +
   scale_fill_viridis_d() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+    #axis.text.x = element_text(angle = 45, hjust = 1, size = 11),
+    axis.text.x = element_text(size = 11),
     axis.text.y = element_text(size = 11),
     axis.title.y = element_text(size = 11),
     legend.text = element_text(size = 11),
@@ -63,5 +64,5 @@ ggsave(glue("../results/erp_aic/lme_fit_{title}.pdf"), plot=p, width = width, he
 
 }
 
-plot_aics(dbc19c_df,"dbc19c", width = 10, height = 3)
-plot_aics(rest_df,"rest", width = 10, height = 3)
+plot_aics(dbc19c_df,"dbc19c", width = 4.8, height = 3)
+plot_aics(rest_df,"rest", width = 9, height = 3)
