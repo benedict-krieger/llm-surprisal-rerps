@@ -173,7 +173,7 @@ make_plots <- function(
         leg_labs = data_labs,
         leg_vals = data_vals,
         omit_legend = TRUE,
-        save_legend = FALSE,
+        save_legend = TRUE,
         omit_x = FALSE,
         omit_y = FALSE,
         annotate = FALSE,
