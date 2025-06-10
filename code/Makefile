@@ -16,13 +16,19 @@ collect_secretgpt2_surp:
 eval_surp:
 	python 02_eval_surprisal.py
 
+lme:
+	julia 03_LME_ERP_fit.jl
+
+plot_lme:
+	Rscript 04_plot_AICs.r
+
 rERP:
-	julia 03_do_rERP.jl
+	julia 05_do_rERP.jl
 
 plot_rERP:
-	Rscript 04_do_plot_rERP.r
+	Rscript 06_do_plot_rERP.r
 
-analysis: paths eval_surp rERP plot_rERP
+analysis: paths eval_surp lme plot_lme rERP plot_rERP
 
 clean:
 	rm -rf ../results

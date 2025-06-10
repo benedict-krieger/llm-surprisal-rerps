@@ -184,8 +184,8 @@ def prep_rERP_data(df, model_ids):
 ##########################
 
 def prep_LME_data(study_id):
-
-    time_windows = {
+    
+    time_windows_orig = {
         "adsbc21" : {
             "N400" : (350,450),
             "P600" : (600,800)
@@ -197,6 +197,25 @@ def prep_LME_data(study_id):
         "dbc19_corrected" : {
             "N400" : (300,500),
             "P600" : (800,1000)
+        },
+        "adbc23" : {
+            "N400" : (300,500),
+            "P600" : (600,1000)
+        }    
+    }
+
+    time_windows = {
+        "adsbc21" : {
+            "N400" : (300,500),
+            "P600" : (600,1000)
+        },
+        "dbc19" : {
+            "N400" : (300,500),
+            "P600" : (600,1000)
+        },
+        "dbc19_corrected" : {
+            "N400" : (300,500),
+            "P600" : (600,1000)
         },
         "adbc23" : {
             "N400" : (300,500),

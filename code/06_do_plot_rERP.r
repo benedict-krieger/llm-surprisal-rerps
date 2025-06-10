@@ -34,14 +34,16 @@ make_plots <- function(
     # Study-specific #
     ##################
     if (study_id == 'adsbc21') {
-        time_windows <- list(c(350, 450), c(600, 800))
+        #time_windows <- list(c(350, 450), c(600, 800))
+        time_windows <- list(c(300, 500), c(600, 1000))
         data_labs <- c("A: A+E+", "B: A-E+", "C: A+E-", "D: A-E-")
         data_vals <- c("#000000", "#BB5566", "#004488", "#DDAA33")
         observed_title <- "Observed"
         topo = FALSE
         }
     else if (study_id == 'dbc19') {
-        time_windows <- list(c(300, 500), c(800, 1000))
+        #time_windows <- list(c(300, 500), c(800, 1000))
+        time_windows <- list(c(300, 500), c(600, 1000))
         data_labs <- c("A: Baseline",
                     "B: Event related violation",
                     "C: Event unrelated violation")
@@ -50,7 +52,8 @@ make_plots <- function(
         topo = TRUE
         }
     else if (study_id == 'dbc19_corrected') {
-        time_windows <- list(c(300, 500), c(800, 1000))
+        #time_windows <- list(c(300, 500), c(800, 1000))
+        time_windows <- list(c(300, 500), c(600, 1000))
         data_labs <- c("A: Baseline",
                     "B: Event related violation",
                     "C: Event unrelated violation")
@@ -96,7 +99,7 @@ make_plots <- function(
         leg_labs = model_labs,
         leg_vals = model_vals,
         omit_legend = TRUE,
-        ci = FALSE
+        ci = TRUE
         )
 
     plot_full_elec(
@@ -114,7 +117,8 @@ make_plots <- function(
         # Specify subsets of time-windows and 
         # electrodes within which to correct
         time_windows <- time_windows
-        elec_corr <- c("F3", "Fz", "F4", "C3", "Cz", "C4", "P3", "Pz", "P4")
+        #elec_corr <- c("F3", "Fz", "F4", "C3", "Cz", "C4", "P3", "Pz", "P4")
+        elec_corr <- c("Pz")
         cols <- c("Timestamp", "Type", "Spec",
                 elec_corr, paste0(elec_corr, "_CI"))
         mod <- mod[, ..cols]
@@ -131,7 +135,8 @@ make_plots <- function(
         sigcols <- grepl("_sig", colnames(sig_corr))
         tval <- cbind(tval, sig_corr[, ..sigcols])
         tval$Condition <- tval$Spec
-        plot_nine_elec(
+        #plot_nine_elec(
+        plot_single_elec(
             data = tval,
             e = elec_corr,
             file = glue("{plots_path}/Waveforms/t-values.pdf"),
@@ -169,7 +174,7 @@ make_plots <- function(
         ylims = c(10.5, -7),
         modus = "Condition",
         tws = time_windows,
-        ci = FALSE,
+        ci = TRUE,
         leg_labs = data_labs,
         leg_vals = data_vals,
         omit_legend = TRUE,
@@ -185,7 +190,7 @@ make_plots <- function(
         file = glue("{plots_path}/Waveforms/Observed_Full.pdf"),
         title = "Observed",
         modus = "Condition",
-        ci = FALSE,
+        ci = TRUE,
         ylims = c(10.5, -7),
         leg_labs = data_labs,
         leg_vals = data_vals)
@@ -238,7 +243,7 @@ make_plots <- function(
             title = paste("Estimates", combo[i]),
             modus = "Condition",
             tws = time_windows, # overwrite default tws with study-specific ones
-            ci = FALSE,
+            ci = TRUE,
             ylims = c(10.5, -7),
             leg_labs = data_labs,
             leg_vals = data_vals,
@@ -285,7 +290,7 @@ make_plots <- function(
             title = paste("Residuals", combo[i]),
             modus = "Condition",
             tws = time_windows,
-            ci = FALSE,
+            ci = TRUE,
             omit_legend = TRUE,
             ylims = c(6, -6),
             leg_labs = data_labs,

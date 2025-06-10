@@ -135,9 +135,9 @@ plot_grandavg_ci <- function(
                     name = "Corrected p-values",
                     labels = c("Nonsignificant", "Significant"))
         p <- p + annotate("rect", xmin = tws[1][[1]][1], xmax = tws[1][[1]][2],
-                    ymin = ylims[1], ymax = ylims[2], alpha = .15)
+                    ymin = ylims[1], ymax = -Inf, alpha = .15)
         p <- p + annotate("rect", xmin = tws[2][[1]][1], xmax = tws[2][[1]][2],
-                    ymin = ylims[1], ymax = ylims[2], alpha = .15)
+                    ymin = ylims[1], ymax = -Inf, alpha = .15)
     }
 
     p
