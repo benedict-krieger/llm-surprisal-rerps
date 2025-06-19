@@ -276,7 +276,7 @@ plot_single_elec <- function(
             legend, heights = c(10, 2))
         }
 
-        ggsave(file, gg, device = cairo_pdf, width = 4, height = 4)
+        ggsave(file, gg, device = cairo_pdf,width = 4, height = 4)
     } else {
         p
     }

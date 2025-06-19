@@ -15,10 +15,10 @@ aic_df <- aic_df %>%
                                    "dbc19",
                                    "dbc19_corrected",
                                    "adbc23"),
-                        labels = c("Aurnhammer et al. (2021)",
-                                   "Delogu et al. (2019)",
-                                   "Delogu et al. (2019) Re-estimated",
-                                   "Aurnhammer et al. (2023)")),
+                        labels = c("Study 1",
+                                   "Study 2",
+                                   "Study 2 Re-estimated",
+                                   "Study 3")),
 
     lme_labs = factor(
                       lme,

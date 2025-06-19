@@ -90,7 +90,8 @@ def kde_plot_conditions(df, model_id, make_title=True):
                         #clip=(0,df_new[surp_id].max()),
     
     #plot.set(xlabel=x_lab_name)
-    plot.set_xlabel(x_lab_name, fontsize = 11)
+    #plot.set_xlabel(x_lab_name, fontsize = 11)
+    plot.set_xlabel(None)
     # plot.set_xlim(0,df_new[surp_id].max())
     plot.set_xlim(0,x_lim) # 43 was the max surprisal value overall
     plot.set_ylabel("Density", fontsize = 11)
