@@ -28,13 +28,12 @@ make_plots <- function(
     # make dirs
     system(glue("mkdir -p {plots_path}"))
     system(glue("mkdir -p {plots_path}/Waveforms"))
-    system(glue("mkdir -p {plots_path}/Topos"))
+    #system(glue("mkdir -p {plots_path}/Topos"))
 
     ##################
     # Study-specific #
     ##################
     if (study_id == 'adsbc21') {
-        #time_windows <- list(c(350, 450), c(600, 800))
         time_windows <- list(c(300, 500), c(600, 1000))
         #data_labs <- c("A: A+E+", "B: A-E+", "C: A+E-", "D: A-E-")
         data_labs <- c("A: Assoc+Exp+", "B: Assoc-Exp+", "C: Assoc+Exp-", "D: Assoc-Exp-")
@@ -43,7 +42,6 @@ make_plots <- function(
         topo = FALSE
         }
     else if (study_id == 'dbc19') {
-        #time_windows <- list(c(300, 500), c(800, 1000))
         time_windows <- list(c(300, 500), c(600, 1000))
         #data_labs <- c("A: Baseline",
         #            "B: Event related violation",
@@ -53,10 +51,9 @@ make_plots <- function(
                     "Assoc-Exp-")
         data_vals <- c("#000000", "red", "blue")
         observed_title <- "Observed"
-        topo = TRUE
+        topo = FALSE
         }
     else if (study_id == 'dbc19_corrected') {
-        #time_windows <- list(c(300, 500), c(800, 1000))
         time_windows <- list(c(300, 500), c(600, 1000))
         #data_labs <- c("A: Baseline",
         #            "B: Event related violation",
@@ -66,7 +63,7 @@ make_plots <- function(
                     "Assoc-Exp-")
         data_vals <- c("#000000", "red", "blue")
         observed_title <- "Re-estimated"
-        topo = TRUE
+        topo = FALSE
         }
     else if (study_id == 'adbc23') {
             time_windows <- list(c(300, 500), c(600, 1000))
@@ -78,7 +75,7 @@ make_plots <- function(
                     "Exp--")
             data_vals <- c("#000000", "red", "blue")
         observed_title <- "Observed"
-            topo = TRUE 
+            topo = FALSE 
         }
     
 
@@ -235,7 +232,7 @@ make_plots <- function(
     #             "Intercept + Noun Association",
     #             "Intercept + Cloze + Noun Association")
 
-    surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "secretgpt2_surp" = "secret GPT-2 surprisal", "gerpt2_surp" = "GerPT-2 surprisal", "gerpt2large_surp" = "GerPT-2 large surprisal")
+    surp_labs = c("leo13b_surp" = "Leo-13b surprisal", "gerpt2_surp" = "GerPT-2 surprisal", "gerpt2large_surp" = "GerPT-2 large surprisal")
     s_lab = surp_labs[surp_id]
     combo <- c("Intercept", glue("Intercept + {s_lab}"))
 

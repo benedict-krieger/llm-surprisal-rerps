@@ -37,10 +37,6 @@ dbc19c_df <- aic_df %>% filter(study == "dbc19_corrected", time_window == "P600"
 rest_df <- aic_df %>% filter(study != "dbc19_corrected") %>% filter(!(study == "dbc19" & time_window == "P600"))
 
 
-#print(dbc19c_df)
-#print(rest_df)
-
-
 plot_aics <- function(df,title,width,height)
 {
 

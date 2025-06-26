@@ -7,12 +7,6 @@ paths:
 	mkdir -p ../data/dbc19_corrected
 	mkdir -p ../results/dbc19_corrected/plots
 
-collect_leo13b_surp:
-	python 01_collect_surprisal.py -m leo13b
-
-collect_secretgpt2_surp:
-	python 01_collect_surprisal.py -m secret-gpt-2
-
 eval_surp:
 	python 02_eval_surprisal.py
 

@@ -133,9 +133,3 @@ end
 
 studies = @time load_data()
 @time predict_tws(studies)
-# Filter so that we have AICs for dbc19 only for the N4 and for dbc19_corrected only for the P6 windows
-#aic_df = filter(row -> !((row.study == "dbc19_corrected" && row.time_window == "N400") || (row.study == "dbc19" && row.time_window == "P600")), aic_df)
-#aic_df.study = replace(aic_df.study, "dbc19_corrected" => "dbc19")
-#aic_df[9:16, :] = vcat(aic_df[13:16, :], aic_df[9:12, :]) # Swapping rows to maintain N4/P6 order
-
-#CSV.write("../results/erp_aic/aic_diffs.csv", aic_df)

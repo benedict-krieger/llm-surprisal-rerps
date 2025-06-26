@@ -65,10 +65,6 @@ def kde_plot_conditions(df, model_id, make_title=True):
         surp_id = 'leo13b_surp'
         x_lab_name = 'Leo-13b surprisal'
     
-    if model_id == 'secretgpt2':
-        surp_id = 'secretgpt2_surp'
-        x_lab_name = 'secret GPT-2 surprisal'
-
     if model_id == 'gerpt2':
         surp_id = 'gerpt2_surp'
         x_lab_name = 'GerPT-2 surprisal'
@@ -87,18 +83,13 @@ def kde_plot_conditions(df, model_id, make_title=True):
                        fill=True,
                        )
     
-                        #clip=(0,df_new[surp_id].max()),
-    
-    #plot.set(xlabel=x_lab_name)
-    #plot.set_xlabel(x_lab_name, fontsize = 11)
+                        
     plot.set_xlabel(None)
-    # plot.set_xlim(0,df_new[surp_id].max())
-    plot.set_xlim(0,x_lim) # 43 was the max surprisal value overall
+    plot.set_xlim(0,x_lim)
     plot.set_ylabel("Density", fontsize = 11)
     plot.set_ylim(0,y_lim) 
 
     if make_title:
-        #plot.set_title(title,fontsize=13,pad=5,x=0.12)
         plot.set_title(title)
 
     add_vlines(df, 'Condition', surp_id, c_palette)
@@ -246,7 +237,7 @@ if __name__ == '__main__':
     study_dfs = [adsbc21_df, dbc19_df, adbc23_df, dbc19_corrected_df]
     study_ids = ['adsbc21', 'dbc19', 'adbc23', 'dbc19_corrected']
     [os.makedirs(f'../results/{study}/plots/', exist_ok = True) for study in study_ids]
-    model_ids = ['leo13b', 'secretgpt2','gerpt2', 'gerpt2large']
+    model_ids = ['leo13b','gerpt2', 'gerpt2large']
     make_title = False
     bpe_dict = dict()
 

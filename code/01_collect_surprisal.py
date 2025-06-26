@@ -147,7 +147,7 @@ def adbc23_surprisal():
 
 if __name__ == '__main__':
 
-    all_models = ['leo13b','secret-gpt-2','gerpt2','gerpt2-large']
+    all_models = ['leo13b','gerpt2','gerpt2-large']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-m','--model',help = f'Models:{all_models}')
@@ -158,14 +158,6 @@ if __name__ == '__main__':
         bpe_id = 'leo13b_bpe_split'
         ws_ind = "▁" # Unicode code point is U+2581, not U+005F
         char_repl = False
-        bos_pad = False
-        
-    elif args.model == 'secret-gpt-2':
-        model_id = 'stefan-it/secret-gpt2'
-        surp_id = 'secretgpt2_surp'
-        bpe_id = 'secretgpt2_bpe_split'
-        ws_ind = 'Ġ'
-        char_repl = True
         bos_pad = False
 
     elif args.model == 'gerpt2':
@@ -188,9 +180,6 @@ if __name__ == '__main__':
     tokenizer = AutoTokenizer.from_pretrained(model_id, add_prefix_space=True)
     model = AutoModelForCausalLM.from_pretrained(model_id)
 
-    #test_sent = "Gestern schärfte der Holzfäller, bevor er das Holz stapelte, die Axt"
-    #get_surprisal(test_sent,model,tokenizer,ws_ind,char_repl)
-    
     print('Collecting adsbc21 surprisal...')
     adsbc21_surprisal()
     print('Collecting dbc19 surprisal...')
